@@ -1,3 +1,5 @@
+import { contextBridge, ipcRenderer } from "electron";
+
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {
   return new Promise(resolve => {
     if (condition.includes(document.readyState)) {
@@ -90,3 +92,10 @@ window.onmessage = (ev) => {
 }
 
 setTimeout(removeLoading, 4999)
+
+contextBridge.exposeInMainWorld('accountsAPI', {
+  getCurrentUser: () => ipcRenderer.invoke('getCurrentUser'),
+  startLogin: () => ipcRenderer.invoke('startLogin'),
+  loginHandler: (callback: any) => ipcRenderer.on('login-success'||'login-error', callback),
+
+})

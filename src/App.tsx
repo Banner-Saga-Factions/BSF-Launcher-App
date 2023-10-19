@@ -1,8 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  useEffect(() => {
+    window.accountsAPI.loginHandler((_evt: string) => {
+      if (_evt === "login-success")
+      console.log('login complete!', _evt);
+    else console.log('error')
+    })
+  })
   return (
     <div className='App'>
       <div className='logo-box'>
@@ -11,7 +18,7 @@ function App() {
       </div>
       <h1>Banner Saga Factions: Community Edition</h1>
       <div className='card'>
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button onClick={() => setCount((count) => {window.accountsAPI.startLogin(); return count + 1})}>
           count is {count}
         </button>
         <p>
