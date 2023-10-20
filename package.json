@@ -1,40 +1,39 @@
 {
-  "name": "banner-saga-factions-community-edition",
-  "version": "0.0.1",
-  "main": "dist-electron/main/index.js",
-  "description": "Community maintained game launcher for Banner Saga Factions",
-  "author": "Pieloaf",
-  "private": true,
-  "debug": {
-    "env": {
-      "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+    "name": "banner-saga-factions-community-edition",
+    "version": "0.0.1",
+    "main": "dist-electron/main/index.js",
+    "description": "Community maintained game launcher for Banner Saga Factions",
+    "author": "Pieloaf",
+    "private": true,
+    "debug": {
+        "env": {
+            "VITE_DEV_SERVER_URL": "http://127.0.0.1:7777/"
+        }
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build && electron-builder",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@node-steam/vdf": "^2.2.0",
+        "electron-updater": "^6.1.1",
+        "registry-js": "^1.15.1"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.20",
+        "@types/react-dom": "^18.2.7",
+        "@vitejs/plugin-react": "^4.0.4",
+        "electron": "^26.0.0",
+        "electron-builder": "^24.6.3",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "typescript": "^5.1.6",
+        "vite": "^4.4.9",
+        "vite-plugin-electron": "^0.13.0-beta.3",
+        "vite-plugin-electron-renderer": "^0.14.5"
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "electron-updater": "^6.1.1",
-    "node-fetch": "^3.3.2"
-  },
-  "devDependencies": {
-    "@node-steam/vdf": "^2.2.0",
-    "@types/react": "^18.2.20",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.4",
-    "electron": "^26.0.0",
-    "electron-builder": "^24.6.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "registry-js": "^1.15.1",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.9",
-    "vite-plugin-electron": "^0.13.0-beta.3",
-    "vite-plugin-electron-renderer": "^0.14.5"
-  },
-  "engines": {
-    "node": ">=18.0.0" 
-  }
 }
