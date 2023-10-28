@@ -1,39 +1,38 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { ipcResponse, responseStatus } from "@/models/ipc";
+import { useEffect } from "react";
+import LoginPage from "@/pages/LoginPage";
+import MainMenu from "@/pages/MainMenu";
+import "@/App.css";
+import { useLoginStore } from "@/store/config";
+import { loginStates } from "@/models/states";
 
-function App() {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    window.accountsAPI.loginHandler((_evt: string) => {
-      if (_evt === "login-success")
-      console.log('login complete!', _evt);
-    else console.log('error')
-    })
-  })
-  return (
-    <div className='App'>
-      <div className='logo-box'>
-        <a href='https://avatars.githubusercontent.com/u/124500905?s=200&v=4' target='_blank'>
-        </a>
-      </div>
-      <h1>Banner Saga Factions: Community Edition</h1>
-      <div className='card'>
-        <button onClick={() => setCount((count) => {window.accountsAPI.startLogin(); return count + 1})}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR123
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Electron + Vite logo to learn more
-      </p>
-      <div className='flex-center'>
-        Place static files into the<code>/public</code> folder <img style={{ width: '5em' }} src='./node.svg' alt='Node logo' />
-      </div>
+const App = (_: any) => {
+    const loginState = useLoginStore((loginState) => loginState.state);
 
-    </div>
-  )
-}
+    // Only on initial load...
+    useEffect(() => {
+        // Get current user
+        window.accountsAPI.getCurrentUser().then((res: ipcResponse) => {
+            console.log(res);
+            if (res.status === responseStatus.success) {
+                useLoginStore.setState({ state: loginStates.loggedIn });
+                console.log(res.data);
+            } else {
+                useLoginStore.setState({ state: loginStates.loggedOut });
+                console.log("login failed");
+            }
+        });
+    }, []);
 
-export default App
+    useEffect(() => {
+        console.log(loginState);
+    }, [loginState]);
+
+    return (
+        <div className="App">
+            {loginState !== loginStates.loggedIn ? <LoginPage /> : <MainMenu />}
+        </div>
+    );
+};
+
+export default App;

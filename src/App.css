@@ -1,26 +1,11 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo-box {
-  position: relative;
-  height: 9em;
-}
-
+/* TODO: Convert to styled component */
 .logo {
-  position: absolute;
-  left: calc(50% - 4.5em);
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+  position: relative;
+  margin: clamp(44px, 8vw, 160px);
+  width: clamp(450px, 60vw, 1400px);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
+
+
 
 @keyframes logo-spin {
   from {
@@ -31,14 +16,80 @@
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .logo.electron {
-    animation: logo-spin infinite 20s linear;
-  }
+.background-container {
+  position: absolute;
+  overflow: hidden;
+  z-index: -1;
 }
 
-.flex-center {
+.background-container span {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 19vw;
+  min-height: 3vw;
+  background-color: #f2f2f2;
+}
+
+img.background {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 125%;
+  filter: saturate(.7) hue-rotate(30deg) brightness(1.5) contrast(.9);
+}
+
+/* TODO: convert to styled component */
+img.loading-ring {
+  position: fixed;
+  bottom: 17.3vw;
+  right: 18.8%;
+  width: 7.3%;
+  filter: saturate(.7) hue-rotate(30deg) brightness(1.5) contrast(.9);
+  animation: none;
+  transition: animation ease-in-out .2s;
+}
+
+img.loading-ring.is-loading {
+  animation: loading 7s infinite linear;
+}
+
+.background-container span.is-loading {
+  display: none;
+}
+
+button {
+  transition: transform .1s cubic-bezier(0.215, 0.610, 0.355, 1);
+    padding: 20px;
+    font-family: 'Vinque';
+    font-size: 32px;
+}
+button:hover  {
+transform: scale(1.06);
+}
+button:hover:disabled {
+  transform: none
+}
+button[disabled]{
+  cursor: default;
+  filter: grayscale(.3) blur(1px);
+}
+
+.login-page {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: 100%; 
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+
+@keyframes loading {
+  0% {
+    rotate: 0deg;
+  }
+  100% {
+    rotate: 360deg;
+  }
 }
