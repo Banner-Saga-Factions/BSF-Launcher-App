@@ -7,13 +7,15 @@ const MainMenu = () => {
     const { state } = useInstalledStore();
 
     useEffect(() => {
-        window.gameAPI.installHandler((_evt: Electron.IpcRendererEvent, res: ipcResponse) => {
-            if (res.status === responseStatus.success) {
-                useInstalledStore.setState({
-                    state: res.data as installedStates,
-                });
+        window.gameAPI.installHandler(
+            (_evt: Electron.IpcRendererEvent, res: ipcResponse) => {
+                if (res.status === responseStatus.success) {
+                    useInstalledStore.setState({
+                        state: res.data as installedStates,
+                    });
+                }
             }
-        });
+        );
     }, []);
 
     useEffect(() => {
@@ -53,7 +55,10 @@ const MainMenu = () => {
             {state === installedStates.installed ? (
                 <button onClick={window.gameAPI.launchGame}>Play Game</button>
             ) : (
-                <button disabled={state === installedStates.installPending} onClick={tryInstall}>
+                <button
+                    disabled={state === installedStates.installPending}
+                    onClick={tryInstall}
+                >
                     Install/Find Game
                 </button>
             )}

@@ -1,4 +1,3 @@
-
 export const theme = {
     colors: {
         red: `#b1605c`,
@@ -11,14 +10,14 @@ export const theme = {
         lightGreen: `#91ee7c`,
         darkGreen: `#033b08`,
         beige: `#ffdbb1`,
-        black: `#2d3148`
+        black: `#2d3148`,
     },
-    
+
     fonts: {
-        title: `Vinque`
+        title: `Vinque`,
     },
 
     fontSizes: {
-        base: `16px`
-    }
-}
+        base: `16px`,
+    },
+};

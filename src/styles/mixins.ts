@@ -19,5 +19,5 @@ export const mixins = {
     buttonText: css`
         user-select: none;
         position: relative;
-    `
+    `,
 };

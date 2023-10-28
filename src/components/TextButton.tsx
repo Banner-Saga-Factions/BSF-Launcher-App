@@ -28,9 +28,7 @@ export const TextButton = (props: ITextButtonProps) => {
             hoverSrc={buttonHighlight}
             themeOverride={assetExtension}
             onClick={onClick}
-            inlineComponents={[
-                <ButtonText style={textStyle}>{text}</ButtonText>,
-            ]}
+            inlineComponents={[<ButtonText style={textStyle}>{text}</ButtonText>]}
         />
     );
 };
