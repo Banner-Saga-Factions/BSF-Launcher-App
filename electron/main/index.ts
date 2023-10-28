@@ -3,6 +3,7 @@ import { release } from 'node:os'
 import { join } from 'node:path'
 import { update } from './ipc/update'
 import { account } from './ipc/account'
+import { gameManager } from './ipc/gameManager'
 
 // The built directory structure
 //
@@ -73,6 +74,7 @@ async function createWindow() {
   // Apply electron-updater
   update(mainWin);
   account(mainWin);
+  gameManager(mainWin);
 }
 
 app.whenReady().then(createWindow)
