@@ -3,26 +3,31 @@ import {
     ipcMain,
     BrowserWindow,
     WebContentsWillRedirectEventParams,
+    safeStorage,
 } from "electron";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { ipcResponse, responseStatus } from "../../ipcTypes";
+import { ipcResponse, responseStatus } from "../../models/ipcTypes";
 
-const DISCORD_LOGIN_URL = "http://localhost:8082/auth/discord-login";
+let host = "http://localhost:8082";
+if (process.env.NODE_ENV === "production") {
+    host = "https://bsf.pieloaf.com";
+}
+const DISCORD_LOGIN_URL = `${host}/auth/discord-login`;
 let loginWin: BrowserWindow | null = null;
 
 export const account = (mainWin: Electron.BrowserWindow) => {
     ipcMain.handle("getCurrentUser", async (): Promise<ipcResponse> => {
         let accessToken: string | null = await getAccessToken();
 
-        if (!accessToken) {
+        if (accessToken) {
             return {
                 status: responseStatus.success,
                 data: null,
             };
         }
 
-        let accountData = await fetch(`https://bsf.pieloaf.com/account/me`, {
+        let accountData = await fetch(`${host}/account/info`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -44,12 +49,13 @@ export const account = (mainWin: Electron.BrowserWindow) => {
         ipcMain.handle("startLogin", async (): Promise<ipcResponse> => {
             loginWin = new BrowserWindow({
                 title: "Discord Login",
-                webPreferences: {
-                    // preload: path.join(__dirname, "login.js"),
-                },
+                width: 650,
+                height: 1000,
+                frame: false,
+                resizable: false,
             });
-
-            loginWin.loadURL("http://localhost:8082/auth/discord-oauth-callback");
+            loginWin.once("ready-to-show", () => loginWin?.show());
+            loginWin.loadURL(DISCORD_LOGIN_URL);
             loginWin.webContents.on("will-redirect", handleLoginRedirect);
 
             return {
@@ -61,17 +67,25 @@ export const account = (mainWin: Electron.BrowserWindow) => {
     const handleLoginRedirect = async (
         details: Electron.Event<WebContentsWillRedirectEventParams>
     ) => {
-        console.log(details);
         let loginRedirect = new URL(details.url);
         if (loginRedirect.protocol !== "bsf:") return;
 
         loginWin?.close();
-        let jwt = loginRedirect.searchParams.get("jwt");
-        if (!jwt) return mainWin?.webContents.send("login-error");
-        await setAccessToken(jwt);
-        mainWin?.webContents.send("login-success");
 
-        // TODO: renderer should call getCurrentUser on login-success
+        let access_token = loginRedirect.searchParams.get("access_token");
+        console.log(loginRedirect);
+        if (!access_token) {
+            return mainWin?.webContents.send("login-complete", {
+                status: responseStatus.error,
+                data: null,
+            } as ipcResponse);
+        }
+        await setAccessToken(access_token);
+        console.log(access_token);
+        mainWin?.webContents.send("login-complete", {
+            status: responseStatus.success,
+            data: access_token,
+        } as ipcResponse);
     };
 };
 
@@ -79,17 +93,16 @@ export const account = (mainWin: Electron.BrowserWindow) => {
 // idk yet
 export const getAccessToken = async (): Promise<string | null> => {
     try {
-        return readFile(path.join(app.getPath("userData"), "access_token"), "utf8");
+        let encrypted_token: Buffer = await readFile(
+            path.join(app.getPath("userData"), "access_token")
+        );
+        return safeStorage.decryptString(encrypted_token);
     } catch (error) {
         return null;
     }
 };
 
 const setAccessToken = async (accessToken: string): Promise<void> => {
-    console.log(app.getPath("userData"))
-    // return writeFile(
-    //     path.join(app.getPath("userData"), "access_token"),
-    //     accessToken,
-    //     "utf8"
-    // );
+    let encrypted_token = safeStorage.encryptString(accessToken);
+    return writeFile(path.join(app.getPath("userData"), "access_token"), encrypted_token);
 };

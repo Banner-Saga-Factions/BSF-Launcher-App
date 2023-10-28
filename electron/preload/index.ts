@@ -1,8 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-function domReady(
-    condition: DocumentReadyState[] = ["complete", "interactive"]
-) {
+function domReady(condition: DocumentReadyState[] = ["complete", "interactive"]) {
     return new Promise((resolve) => {
         if (condition.includes(document.readyState)) {
             resolve(true);
@@ -103,4 +101,7 @@ contextBridge.exposeInMainWorld("accountsAPI", {
 
 contextBridge.exposeInMainWorld("gameAPI", {
     launchGame: () => ipcRenderer.invoke("launchGame"),
+    checkForGame: () => ipcRenderer.invoke("checkForGame"),
+    installGame: () => ipcRenderer.invoke("installGame"),
+    installHandler: (callback: any) => ipcRenderer.on("install-status", callback),
 });

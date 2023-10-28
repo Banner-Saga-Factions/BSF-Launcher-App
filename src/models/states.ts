@@ -6,6 +6,7 @@ export enum loginStates {
 
 export enum installedStates {
     notInstalled,
+    installPending,
     downloading,
     installing,
     installed,
