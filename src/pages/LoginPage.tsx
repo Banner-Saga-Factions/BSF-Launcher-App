@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ipcResponse, responseStatus } from "@/models/ipc";
+import { ipcResponse } from "@/models/ipc";
 import { useLoginStore } from "@/store/config";
 import { loginStates } from "@/models/states";
 import { TextButton } from "@/components/TextButton";
@@ -16,12 +16,14 @@ const LoginPage = () => {
     useEffect(() => {
         window.accountsAPI.loginHandler(
             (_evt: Electron.IpcRendererEvent, res: ipcResponse) => {
-                if (res.status === responseStatus.success) {
-                    useLoginStore.setState({ state: loginStates.loggedIn });
-                }
-                if (res.status === responseStatus.error) {
+                if (res.error) {
                     setLoginError(true);
                     useLoginStore.setState({ state: loginStates.loggedOut });
+                    console.error(
+                        `Login Failed: ${res.error.message} [${res.error.errorCode}]`
+                    );
+                } else {
+                    useLoginStore.setState({ state: loginStates.loggedIn });
                 }
             }
         );

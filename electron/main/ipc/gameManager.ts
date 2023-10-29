@@ -1,8 +1,9 @@
 import { app, ipcMain, dialog } from "electron";
 import { execFile } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { existsSync, createWriteStream } from "node:fs";
+
 import path from "node:path";
-import { ipcResponse, responseStatus } from "../../models/ipcTypes";
+import { ipcResponse, ipcErrorCodes } from "../ipcTypes";
 import { getAccessToken } from "./account";
 import { currentConfig } from "./config";
 import { getGamePath } from "steam-game-path";
@@ -18,64 +19,101 @@ if (process.env.NODE_ENV === "production") {
 export const gameManager = (mainWin: Electron.BrowserWindow) => {
     ipcMain.handle("checkForGame", async (): Promise<ipcResponse> => {
         if (!currentConfig.getConfigField("gamePath")) {
+            // try get path automatically from steam
             let gamePath = await getGamePath(FACTIONS_APP_ID);
             if (gamePath?.game?.path) {
-                currentConfig.setConfigField(
-                    "gamePath",
-                    path.join(gamePath.game.path, "win32", "The Banner Saga Factions.exe")
-                );
+                setGamePath(gamePath.game.path);
             } else {
                 return {
-                    status: responseStatus.error,
                     data: null,
+                    error: {
+                        message: "No game path set",
+                        errorCode: ipcErrorCodes.EInvalidConfigField,
+                    },
                 };
             }
         }
         return {
-            status: responseStatus.success,
             data: null,
         };
     });
 
     ipcMain.handle("installGame", async (): Promise<ipcResponse> => {
-        await dialog.showOpenDialog({
+        let dialogResult = await dialog.showOpenDialog({
             properties: ["openDirectory"],
             title: "Select Banner Saga Factions Install Location",
         });
-        let accessToken: string | null = await getAccessToken();
-        if (!accessToken) {
+
+        // if operation cancelled or no directory selected
+        if (dialogResult.canceled || !dialogResult.filePaths.length) {
             return {
-                status: responseStatus.error,
+                data: null,
+                error: {
+                    message: "No directory selected",
+                    errorCode: ipcErrorCodes.EOperationCancelled,
+                },
+            };
+        }
+
+        // if directory already has game installed
+        let gamePath = dialogResult.filePaths[0];
+        setGamePath(gamePath);
+        if (existsSync(gamePath)) {
+            return {
                 data: null,
             };
         }
 
-        await fetch(`${host}/getFactions`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+        let access_token = await getAccessToken();
+        if (!access_token) {
+            return {
+                data: null,
+                error: {
+                    message: "No access token found",
+                    errorCode: ipcErrorCodes.ENoAccessToken,
+                },
+            };
+        }
+        try {
+            await download(new URL(`${host}/download`), app.getPath("temp"), {
+                Authorization: `Bearer ${access_token}`,
+            });
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: "Failed to download game",
+                    errorCode: ipcErrorCodes.EServerError,
+                },
+            };
+        }
         return {
-            status: responseStatus.success,
             data: null,
         };
     });
 
     ipcMain.handle("launchGame", async (): Promise<ipcResponse> => {
         let accessToken: string | null = await getAccessToken();
-        if (!accessToken) {
+        let exePath = currentConfig.getConfigField("gamePath");
+        let username = currentConfig.getConfigField("username");
+
+        if (!(accessToken && exePath && username)) {
             return {
-                status: responseStatus.error,
                 data: null,
+                error: {
+                    message: `Missing config field: ${
+                        !exePath ? "gamePath" : "username"
+                    }`,
+                    errorCode: ipcErrorCodes.EMissingConfigField,
+                },
             };
         }
 
-        execFile(currentConfig.getConfigField("gamePath"), [
+        execFile(exePath, [
             "--server",
             "http://localhost:8082/",
             "--username",
-            "Pieloaf",
+            username,
             "--developer",
             "--steam_id",
             accessToken,
@@ -83,23 +121,26 @@ export const gameManager = (mainWin: Electron.BrowserWindow) => {
             "false",
             "--factions",
         ]);
+
         return {
-            status: responseStatus.success,
             data: null,
         };
     });
 };
 
-// const getGamePath = async (): Promise<string> => {
-//     let config = path.join(app.getPath("appData"), "config.json");
-//     let configData = JSON.parse((await readFile(config)).toString());
-//     return configData.gamePath || "";
-// };
+const setGamePath = async (gamePath: string): Promise<string> => {
+    let gameExePath = path.join(gamePath, "win32", "The Banner Saga Factions.exe");
+    currentConfig.setConfigField("gamePath", gameExePath);
+    return gameExePath;
+};
 
-const setGamePath = async (gamePath: string): Promise<void> => {
-    getGamePath(219340);
-    let config = path.join(app.getPath("appData"), "config.json");
-    let configData = JSON.parse((await readFile(config)).toString());
-    configData.gamePath = gamePath;
-    await writeFile(config, JSON.stringify(configData));
+const download = async (url: URL, path: string, headers?: { [key: string]: string }) => {
+    try {
+        Readable.fromWeb(
+            (await fetch(url, { method: "GET", headers: headers }))
+                .body as ReadableStream<any>
+        ).pipe(createWriteStream(path));
+    } catch (error) {
+        throw error;
+    }
 };

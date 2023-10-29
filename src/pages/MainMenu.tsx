@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ipcResponse, responseStatus } from "@/models/ipc";
+import { useEffect } from "react";
+import { ipcResponse } from "@/models/ipc";
 import { useInstalledStore } from "@/store/config";
 import { installedStates } from "@/models/states";
 
@@ -9,7 +9,7 @@ const MainMenu = () => {
     useEffect(() => {
         window.gameAPI.installHandler(
             (_evt: Electron.IpcRendererEvent, res: ipcResponse) => {
-                if (res.status === responseStatus.success) {
+                if (!res.error) {
                     useInstalledStore.setState({
                         state: res.data as installedStates,
                     });
@@ -21,8 +21,8 @@ const MainMenu = () => {
     useEffect(() => {
         switch (state) {
             case installedStates.installed:
-                window.gameAPI.checkForGame().then((res: any) => {
-                    if (res.status === responseStatus.success) {
+                window.gameAPI.checkForGame().then((res: ipcResponse) => {
+                    if (!res.error) {
                         useInstalledStore.setState({
                             state: installedStates.installed,
                         });
@@ -36,14 +36,17 @@ const MainMenu = () => {
 
     const tryInstall = () => {
         useInstalledStore.setState({ state: installedStates.installPending });
-        window.gameAPI.installGame().then((res: any) => {
-            if (res.status === responseStatus.success) {
-                useInstalledStore.setState({
-                    state: installedStates.installed,
-                });
-            } else {
+        window.gameAPI.installGame().then((res: ipcResponse) => {
+            if (res.error) {
                 useInstalledStore.setState({
                     state: installedStates.notInstalled,
+                });
+                console.error(
+                    `Install Failed: ${res.error.message} [${res.error.errorCode}]`
+                );
+            } else {
+                useInstalledStore.setState({
+                    state: installedStates.installed,
                 });
             }
         });

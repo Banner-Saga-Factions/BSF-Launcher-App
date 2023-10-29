@@ -1,19 +1,25 @@
-export interface ipcResponse {
-    status: responseStatus;
-    data: any;
-}
-export enum responseStatus {
-    success = 0,
-    error = 1,
+export enum ipcErrorCodes {
+    ENoAccessToken,
+    EMissingConfigField,
+    EInvalidConfigField,
+    EOperationCancelled,
+    EServerError,
+    EUnkownError,
 }
 
+export type responseError = {
+    message: string;
+    errorCode: ipcErrorCodes;
+};
+
+export type ipcResponse = {
+    data: any;
+    error?: responseError;
+};
+
 declare global {
-    interface ipcResponse {
-        status: responseStatus;
+    type ipcResponse = {
         data: any;
-    }
-    enum responseStatus {
-        success = 0,
-        error = 1,
-    }
+        error?: responseError;
+    };
 }

@@ -1,13 +1,12 @@
 import { app, ipcMain } from "electron";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
-import { ipcResponse, responseStatus } from "../../models/ipcTypes";
-import { Config } from "electron/models/config";
+
+import { ipcResponse } from "../ipcTypes";
 
 export const configManager = (mainWin: Electron.BrowserWindow) => {
     ipcMain.handle("getConfig", async (): Promise<ipcResponse> => {
         return {
-            status: responseStatus.success,
             data: currentConfig.getConfig(),
         };
     });

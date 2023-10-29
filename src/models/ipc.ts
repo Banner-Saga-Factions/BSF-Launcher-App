@@ -1,9 +1,18 @@
-export interface ipcResponse {
-    status: responseStatus;
-    data: any;
+export enum ipcErrorCodes {
+    ENoAccessToken,
+    EMissingConfigField,
+    EInvalidConfigField,
+    EOperationCancelled,
+    EServerError,
+    EUnkownError,
 }
 
-export enum responseStatus {
-    success = 0,
-    error = 1,
-}
+export type responseError = {
+    message: string;
+    errorCode: ipcErrorCodes;
+};
+
+export type ipcResponse = {
+    data: any;
+    error?: responseError;
+};

@@ -7,7 +7,9 @@ import {
 } from "electron";
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { ipcResponse, responseStatus } from "../../models/ipcTypes";
+
+import { currentConfig } from "./config";
+import { ipcResponse, ipcErrorCodes } from "../ipcTypes";
 
 let host = "http://localhost:8082";
 if (process.env.NODE_ENV === "production") {
@@ -20,10 +22,13 @@ export const account = (mainWin: Electron.BrowserWindow) => {
     ipcMain.handle("getCurrentUser", async (): Promise<ipcResponse> => {
         let accessToken: string | null = await getAccessToken();
 
-        if (accessToken) {
+        if (!accessToken) {
             return {
-                status: responseStatus.success,
                 data: null,
+                error: {
+                    message: "No access token found",
+                    errorCode: ipcErrorCodes.ENoAccessToken,
+                },
             };
         }
 
@@ -35,14 +40,16 @@ export const account = (mainWin: Electron.BrowserWindow) => {
 
         if (accountData.status === 200) {
             return {
-                status: responseStatus.success,
                 data: await accountData.json(),
             };
         } else {
             // TODO: log error somewhere
             return {
-                status: responseStatus.error,
                 data: null,
+                error: {
+                    message: await accountData.json(),
+                    errorCode: ipcErrorCodes.EServerError,
+                },
             };
         }
     }),
@@ -59,7 +66,6 @@ export const account = (mainWin: Electron.BrowserWindow) => {
             loginWin.webContents.on("will-redirect", handleLoginRedirect);
 
             return {
-                status: responseStatus.success,
                 data: null,
             };
         });
@@ -71,20 +77,22 @@ export const account = (mainWin: Electron.BrowserWindow) => {
         if (loginRedirect.protocol !== "bsf:") return;
 
         loginWin?.close();
-
         let access_token = loginRedirect.searchParams.get("access_token");
-        console.log(loginRedirect);
+
         if (!access_token) {
             return mainWin?.webContents.send("login-complete", {
-                status: responseStatus.error,
                 data: null,
+                error: {
+                    message: "No access token found",
+                    errorCode: ipcErrorCodes.ENoAccessToken,
+                },
             } as ipcResponse);
         }
         await setAccessToken(access_token);
-        console.log(access_token);
+        let username = currentConfig.getConfigField("username");
+
         mainWin?.webContents.send("login-complete", {
-            status: responseStatus.success,
-            data: access_token,
+            data: username,
         } as ipcResponse);
     };
 };
