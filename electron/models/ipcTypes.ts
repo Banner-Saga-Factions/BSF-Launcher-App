@@ -3,6 +3,7 @@ export enum ipcErrorCodes {
     EMissingConfigField,
     EInvalidConfigField,
     EOperationCancelled,
+    EInstallError,
     EServerError,
     EUnkownError,
 }

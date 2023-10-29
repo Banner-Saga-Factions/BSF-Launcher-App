@@ -1,10 +1,12 @@
-import { app, BrowserWindow, shell, ipcMain } from "electron";
 import { release } from "node:os";
 import { join } from "node:path";
-import { update } from "./ipc/update";
-import { account } from "./ipc/account";
-import { gameManager } from "./ipc/gameManager";
-import { configManager } from "./ipc/config";
+
+import { app, BrowserWindow, shell, ipcMain } from "electron";
+
+import { update } from "./ipcModules/update";
+import { accountIpcInit } from "./ipcModules/account";
+import { gameManagerIpcInit } from "./ipcModules/gameManager";
+import { configManagerIpcInit } from "./ipcModules/config";
 
 process.env.DIST_ELECTRON = join(__dirname, "../");
 process.env.DIST = join(process.env.DIST_ELECTRON, "../dist");
@@ -60,9 +62,9 @@ async function createWindow() {
 
     // Apply electron-updater
     update(mainWin);
-    account(mainWin);
-    gameManager(mainWin);
-    configManager(mainWin);
+    accountIpcInit();
+    gameManagerIpcInit();
+    configManagerIpcInit();
 }
 
 app.whenReady().then(createWindow);

@@ -16,13 +16,15 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@rgrove/parse-xml": "^4.1.0",
         "electron-updater": "^6.1.1",
-        "registry-js": "^1.15.1",
-        "steam-game-path": "^2.2.0"
+        "steam-game-path": "^2.2.0",
+        "tar": "^6.2.0"
     },
     "devDependencies": {
         "@types/react": "^18.2.20",
         "@types/react-dom": "^18.2.7",
+        "@types/tar": "^6.1.7",
         "@vitejs/plugin-react": "^4.0.4",
         "electron": "^26.0.0",
         "electron-builder": "^24.6.3",

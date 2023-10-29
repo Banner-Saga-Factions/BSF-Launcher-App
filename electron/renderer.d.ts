@@ -12,7 +12,7 @@ export interface IElectronAccountsAPI {
 
 export interface IElectronGameAPI {
     launchGame: () => Promise<ipcResponse>;
-    checkForGame: () => Promise<ipcResponse>;
+    checkGameIsInstalled: () => Promise<ipcResponse>;
     installGame: () => Promise<ipcResponse>;
     gameSetHandler: (callback: any) => void;
     installHandler: (callback: any) => void;

@@ -101,7 +101,7 @@ contextBridge.exposeInMainWorld("accountsAPI", {
 
 contextBridge.exposeInMainWorld("gameAPI", {
     launchGame: () => ipcRenderer.invoke("launchGame"),
-    checkForGame: () => ipcRenderer.invoke("checkForGame"),
+    checkGameIsInstalled: () => ipcRenderer.invoke("checkGameIsInstalled"),
     installGame: () => ipcRenderer.invoke("installGame"),
     installHandler: (callback: any) => ipcRenderer.on("install-status", callback),
 });
