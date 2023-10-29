@@ -1,12 +1,5 @@
-export enum ipcErrorCodes {
-    ENoAccessToken,
-    EMissingConfigField,
-    EInvalidConfigField,
-    EOperationCancelled,
-    EInstallError,
-    EServerError,
-    EUnkownError,
-}
+// Source: https://stackoverflow.com/a/58544618
+type EnumPlaceholder = { [s: string | number | symbol]: any };
 
 export type responseError = {
     message: string;

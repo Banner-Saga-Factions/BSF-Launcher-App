@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { ipcResponse } from "@/models/ipc";
 import { useInstalledStore } from "@/store/config";
 import { installedStates } from "@/models/states";
 
@@ -21,7 +20,7 @@ const MainMenu = () => {
     useEffect(() => {
         switch (state) {
             case installedStates.installed:
-                window.gameAPI.checkForGame().then((res: ipcResponse) => {
+                window.gameAPI.checkGameIsInstalled().then((res: ipcResponse) => {
                     if (!res.error) {
                         useInstalledStore.setState({
                             state: installedStates.installed,

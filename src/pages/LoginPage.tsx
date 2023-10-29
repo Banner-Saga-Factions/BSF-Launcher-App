@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { ipcResponse } from "@/models/ipc";
 import { useLoginStore } from "@/store/config";
 import { loginStates } from "@/models/states";
 import { TextButton } from "@/components/TextButton";

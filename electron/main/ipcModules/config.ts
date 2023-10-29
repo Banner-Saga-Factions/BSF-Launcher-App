@@ -3,8 +3,6 @@ import path from "node:path";
 
 import { app, ipcMain } from "electron";
 
-import { ipcResponse } from "../ipcTypes";
-
 export const configManagerIpcInit = () => {
     ipcMain.handle("getConfig", async (): Promise<ipcResponse> => {
         return {

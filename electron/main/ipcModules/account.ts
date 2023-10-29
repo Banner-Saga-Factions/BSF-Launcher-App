@@ -5,8 +5,7 @@ import { app, ipcMain, BrowserWindow, safeStorage } from "electron";
 
 import { currentConfig } from "./config";
 
-import { ipcErrorCodes } from "../ipcTypes";
-import { ipcResponse } from "../ipcTypes";
+import { ipcErrorCodes } from "../enums";
 
 type redirectDetails = Electron.Event<Electron.WebContentsWillRedirectEventParams>;
 
@@ -25,7 +24,7 @@ export const accountIpcInit = () => {
 export const getAccessToken = async (): Promise<string | null> => {
     try {
         let encryptedToken: Buffer = await readFile(
-            path.join(app.getPath("userData"), "accessToken")
+            path.join(app.getPath("userData"), "access_token")
         );
         return safeStorage.decryptString(encryptedToken);
     } catch (error) {
@@ -35,7 +34,7 @@ export const getAccessToken = async (): Promise<string | null> => {
 
 const setAccessToken = async (accessToken: string): Promise<void> => {
     let encryptedToken = safeStorage.encryptString(accessToken);
-    return writeFile(path.join(app.getPath("userData"), "accessToken"), encryptedToken);
+    return writeFile(path.join(app.getPath("userData"), "access_token"), encryptedToken);
 };
 
 const getCurrentUser = async (): Promise<ipcResponse> => {
@@ -51,11 +50,22 @@ const getCurrentUser = async (): Promise<ipcResponse> => {
         };
     }
 
-    let accountData = await fetch(`${host}/account/info`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+    let accountData;
+    try {
+        accountData = await fetch(`${host}/account/info`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+    } catch (error) {
+        return {
+            data: null,
+            error: {
+                message: "Failed to fetch user data",
+                errorCode: ipcErrorCodes.EServerError,
+            },
+        };
+    }
 
     if (accountData.status === 200) {
         return {
@@ -94,7 +104,7 @@ const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<ipcRespo
         if (loginRedirect.protocol !== "bsf:") return;
 
         loginWin?.close();
-        let accessToken = loginRedirect.searchParams.get("accessToken");
+        let accessToken = loginRedirect.searchParams.get("access_token");
 
         if (!accessToken) {
             return event.sender.send("login-complete", {

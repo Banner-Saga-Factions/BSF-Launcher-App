@@ -11,17 +11,13 @@ import { x } from "tar";
 const tar = { x };
 
 import { currentConfig } from "../ipcModules/config";
+import { InstallProgress } from "../enums";
 
 const host =
     process.env.NODE_ENV === "production"
         ? "https://bsf.pieloaf.com"
         : "http://localhost:8082";
 
-const enum InstallProgress {
-    DOWNLOADING = "downloading",
-    VERIFYING = "verifying",
-    INSTALLING = "installing",
-}
 const download = async (url: URL, out: string, headers?: { [key: string]: string }) => {
     // Source: https://stackoverflow.com/a/74722818
     try {

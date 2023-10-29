@@ -1,4 +1,3 @@
-import { ipcResponse } from "@/models/ipc";
 import { useEffect } from "react";
 import LoginPage from "@/pages/LoginPage";
 import MainMenu from "@/pages/MainMenu";

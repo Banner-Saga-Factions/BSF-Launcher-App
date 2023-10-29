@@ -8,7 +8,7 @@ import { getGamePath } from "steam-game-path";
 import { getAccessToken } from "./account";
 import { currentConfig } from "./config";
 import { installGame } from "../util/installer";
-import { ipcResponse, ipcErrorCodes } from "../ipcTypes";
+import { launchArgs, ipcErrorCodes } from "../enums";
 
 const host =
     process.env.NODE_ENV === "production"
@@ -112,15 +112,6 @@ const handledInstallGame = async (
         data: null,
     };
 };
-
-enum launchArgs {
-    SERVER = "--server",
-    USERNAME = "--username",
-    ACCESS_TOKEN = "--steam_id",
-    STEAM = "--steam",
-    FACTIONS = "--factions",
-    DEVELOPER = "--developer",
-}
 
 const handleLaunchGame = async (): Promise<ipcResponse> => {
     let accessToken: string | null = await getAccessToken();
