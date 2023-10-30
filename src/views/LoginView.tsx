@@ -7,7 +7,7 @@ import background from "@/assets/background.png";
 import loadingRing from "@/assets/loading-ring.png";
 import logo from "@/assets/logo.png";
 
-const LoginPage = () => {
+export const LoginView = () => {
     // TODO: notify on error
     const [loginError, setLoginError] = useState(false);
     const loginState = useLoginStore((s) => s.state);
@@ -67,5 +67,3 @@ const LoginPage = () => {
         </div>
     );
 };
-
-export default LoginPage;

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import LoginPage from "@/pages/LoginPage";
-import MainMenu from "@/pages/MainMenu";
+import { LoginView } from "@/views/LoginView";
+import { MainMenu } from "@/views/MainMenu";
 import "@/App.css";
 import { useLoginStore } from "@/store/config";
 import { loginStates } from "@/models/states";
@@ -24,7 +24,7 @@ const App = (_: any) => {
 
     return (
         <div className="App">
-            {loginState !== loginStates.loggedIn ? <LoginPage /> : <MainMenu />}
+            {loginState !== loginStates.loggedIn ? <LoginView /> : <MainMenu />}
         </div>
     );
 };

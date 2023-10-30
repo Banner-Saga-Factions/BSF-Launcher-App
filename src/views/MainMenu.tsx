@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useInstalledStore } from "@/store/config";
 import { installedStates } from "@/models/states";
 
-const MainMenu = () => {
+export const MainMenu = () => {
     const { state } = useInstalledStore();
 
     useEffect(() => {
@@ -67,5 +67,3 @@ const MainMenu = () => {
         </div>
     );
 };
-
-export default MainMenu;
