@@ -96,12 +96,13 @@ setTimeout(removeLoading, 4999);
 contextBridge.exposeInMainWorld("accountsAPI", {
     getCurrentUser: () => ipcRenderer.invoke("getCurrentUser"),
     startLogin: () => ipcRenderer.invoke("startLogin"),
-    loginHandler: (callback: any) => ipcRenderer.on("login-complete", callback),
+    loginHandler: (callback: (_evt: Electron.IpcRendererEvent, error?: Error) => void) =>
+        ipcRenderer.on("login-completed" || "login-error", callback),
 });
 
 contextBridge.exposeInMainWorld("gameAPI", {
     launchGame: () => ipcRenderer.invoke("launchGame"),
     checkGameIsInstalled: () => ipcRenderer.invoke("checkGameIsInstalled"),
     installGame: () => ipcRenderer.invoke("installGame"),
-    installHandler: (callback: any) => ipcRenderer.on("install-status", callback),
+    installHandler: (callback: any) => ipcRenderer.on("install-progress", callback),
 });

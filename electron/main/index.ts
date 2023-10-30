@@ -3,10 +3,10 @@ import { join } from "node:path";
 
 import { app, BrowserWindow, shell, ipcMain } from "electron";
 
-import { update } from "./ipcModules/update";
-import { accountIpcInit } from "./ipcModules/account";
-import { gameManagerIpcInit } from "./ipcModules/gameManager";
-import { configManagerIpcInit } from "./ipcModules/config";
+import { update } from "./ipc_modules/update";
+import { accountIpcInit } from "./ipc_modules/account";
+import { gameManagerIpcInit } from "./ipc_modules/gameManager";
+import { configManager } from "../util/config";
 
 process.env.DIST_ELECTRON = join(__dirname, "../");
 process.env.DIST = join(process.env.DIST_ELECTRON, "../dist");
@@ -64,7 +64,6 @@ async function createWindow() {
     update(mainWin);
     accountIpcInit();
     gameManagerIpcInit();
-    configManagerIpcInit();
 }
 
 app.whenReady().then(createWindow);

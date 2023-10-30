@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLoginStore } from "@/store/config";
-import { loginStates } from "@/models/states";
+import { LoginStates } from "@/models/states";
 import { TextButton } from "@/components/TextButton";
 
 import background from "@/assets/background.png";
@@ -8,36 +8,30 @@ import loadingRing from "@/assets/loading-ring.png";
 import logo from "@/assets/logo.png";
 
 export const LoginView = () => {
-    // TODO: notify on error
-    const [loginError, setLoginError] = useState(false);
     const loginState = useLoginStore((s) => s.state);
+    const loginError = useLoginStore((s) => s.error);
 
     useEffect(() => {
-        window.accountsAPI.loginHandler(
-            (_evt: Electron.IpcRendererEvent, res: ipcResponse) => {
-                if (res.error) {
-                    setLoginError(true);
-                    useLoginStore.setState({ state: loginStates.loggedOut });
-                    console.error(
-                        `Login Failed: ${res.error.message} [${res.error.errorCode}]`
-                    );
-                } else {
-                    useLoginStore.setState({ state: loginStates.loggedIn });
-                }
+        window.accountsAPI.loginHandler((_evt: Electron.IpcRendererEvent, error?: Error) => {
+            if (error) {
+                useLoginStore.setState({ state: LoginStates.LoggedOut, error });
+            } else {
+                useLoginStore.setState({ state: LoginStates.LoggedIn });
             }
-        );
+        });
     }, []);
 
+    useEffect(() => {
+        // TODO: notify user of error
+    }, [loginError]);
+
     const startLogin = () => {
-        useLoginStore.setState({ state: loginStates.loginPending });
+        useLoginStore.setState({ state: LoginStates.LoginPending });
         window.accountsAPI.startLogin();
     };
 
     const isLoading = (): string => {
-        if (loginState === loginStates.loginPending) {
-            return "is-loading";
-        }
-        return "";
+        return loginState === LoginStates.LoginPending ? "is-loading" : "";
     };
 
     return (
@@ -64,6 +58,8 @@ export const LoginView = () => {
                     fontSize: `clamp(72px, 6vw, 130px)`,
                 }}
             />
+            /* placeholder */
+            {loginError ? <p className="error-message"> 🔴 {loginError.message}</p> : null}
         </div>
     );
 };

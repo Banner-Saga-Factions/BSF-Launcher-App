@@ -1,20 +1,21 @@
-export enum loginStates {
-    loggedOut,
-    loginPending,
-    loggedIn,
+export enum LoginStates {
+    LoggedOut,
+    LoginPending,
+    LoggedIn,
 }
 
-export enum installedStates {
-    notInstalled,
-    installPending,
-    downloading,
-    installing,
-    installed,
+export enum InstallStates {
+    NotInstalled = "NotInstalled",
+    InstallPending = "InstallPending",
+    Downloading = "Downloading",
+    Verifying = "Verifying",
+    Installing = "Installing",
+    Installed = "Installed",
 }
 
-export enum updateStates {
-    noUpdate,
-    checkingForUpdate,
-    updateAvailable,
-    updateNotAvailable,
+export enum UpdateStates {
+    NoUpdate,
+    CheckingForUpdate,
+    UpdateAvailable,
+    UpdateNotAvailable,
 }

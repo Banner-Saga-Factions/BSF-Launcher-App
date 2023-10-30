@@ -6,46 +6,46 @@ import { app, ipcMain, dialog } from "electron";
 import { getGamePath } from "steam-game-path";
 
 import { getAccessToken } from "./account";
-import { currentConfig } from "./config";
-import { installGame } from "../util/installer";
-import { launchArgs, ipcErrorCodes } from "../enums";
+import { configManager } from "../../util/config";
+import { GameInstaller } from "../../util/installer";
 
 const host =
-    process.env.NODE_ENV === "production"
-        ? "https://bsf.pieloaf.com"
-        : "http://localhost:8082";
+    process.env.NODE_ENV === "production" ? "https://bsf.pieloaf.com" : "http://localhost:8082";
+
 const FACTIONS_APP_ID = 219340;
+
+enum launchArgs {
+    SERVER = "--server",
+    USERNAME = "--username",
+    ACCESS_TOKEN = "--steam_id",
+    STEAM = "--steam",
+    FACTIONS = "--factions",
+    DEVELOPER = "--developer",
+    DEBUG = "--debug",
+    VS_COUNTDOWN = "--versus_countdown",
+    VS_START = "--versus_start",
+}
 
 export const gameManagerIpcInit = () => {
     ipcMain.handle("checkGameIsInstalled", checkGameIsInstalled);
-    ipcMain.handle("installGame", handledInstallGame);
+    ipcMain.handle("installGame", handledInstall);
     ipcMain.handle("launchGame", handleLaunchGame);
 };
 
-const checkGameIsInstalled = async (): Promise<ipcResponse> => {
-    if (!currentConfig.getConfigField("gamePath")) {
+const checkGameIsInstalled = async (): Promise<boolean> => {
+    if (!configManager.getConfigField("gamePath")) {
         // try get path automatically from steam
         let gamePath = await getGamePath(FACTIONS_APP_ID);
         if (gamePath?.game?.path) {
             setGamePath(gamePath.game.path);
         } else {
-            return {
-                data: null,
-                error: {
-                    message: "No game path set",
-                    errorCode: ipcErrorCodes.EInvalidConfigField,
-                },
-            };
+            return false;
         }
     }
-    return {
-        data: null,
-    };
+    return true;
 };
 
-const handledInstallGame = async (
-    event: Electron.IpcMainInvokeEvent
-): Promise<ipcResponse> => {
+const handledInstall = async (event: Electron.IpcMainInvokeEvent): Promise<void> => {
     let dialogResult = await dialog.showOpenDialog({
         properties: ["openDirectory"],
         title: "Select Banner Saga Factions Install Location",
@@ -53,13 +53,7 @@ const handledInstallGame = async (
 
     // if operation cancelled or no directory selected
     if (dialogResult.canceled || !dialogResult.filePaths.length) {
-        return {
-            data: null,
-            error: {
-                message: "No directory selected",
-                errorCode: ipcErrorCodes.EOperationCancelled,
-            },
-        };
+        throw new Error("Unable to install game: No directory selected");
     }
 
     // User selected path
@@ -78,61 +72,41 @@ const handledInstallGame = async (
         let gameDir = installDir;
         // set path
         setGamePath(gameDir);
-        return {
-            data: null,
-        };
+        return;
     }
     //=== End check ===//
 
     let accessToken = await getAccessToken();
     if (!accessToken) {
-        return {
-            data: null,
-            error: {
-                message: "No access token found",
-                errorCode: ipcErrorCodes.ENoAccessToken,
-            },
-        };
+        throw new Error("Unable to install game: Missing access token");
     }
 
     try {
-        let gameDir = await installGame(accessToken, installDir, event.sender);
+        let gameDir = await new GameInstaller(accessToken, installDir, event.sender).installGame();
+
         setGamePath(gameDir);
     } catch (error) {
-        return {
-            data: null,
-            error: {
-                message: (error as Error).message,
-                errorCode: ipcErrorCodes.EInstallError,
-            },
-        };
+        throw new Error(`Failed to install game: ${error}`, { cause: error });
     }
 
-    return {
-        data: null,
-    };
+    return;
 };
 
-const handleLaunchGame = async (): Promise<ipcResponse> => {
+const handleLaunchGame = async (): Promise<void> => {
     let accessToken: string | null = await getAccessToken();
-    let exePath = currentConfig.getConfigField("gamePath");
-    let username = currentConfig.getConfigField("username");
+    let exePath = configManager.getConfigField("gamePath");
 
-    if (!(accessToken && exePath && username)) {
-        return {
-            data: null,
-            error: {
-                message: `Missing config field: ${!exePath ? "gamePath" : "username"}`,
-                errorCode: ipcErrorCodes.EMissingConfigField,
-            },
-        };
+    if (!accessToken) {
+        throw new Error("Unable to launch game: Missing accessToken");
+    } else if (!exePath) {
+        throw new Error("Unable to launch game: Missing gamePath");
     }
 
     execFile(exePath, [
         launchArgs.SERVER,
         host,
         launchArgs.USERNAME,
-        username,
+        "_default_",
         launchArgs.ACCESS_TOKEN,
         accessToken,
         launchArgs.STEAM,
@@ -141,9 +115,7 @@ const handleLaunchGame = async (): Promise<ipcResponse> => {
         launchArgs.FACTIONS,
     ]);
 
-    return {
-        data: null,
-    };
+    return;
 };
 
 const setGamePath = async (gamePath: string): Promise<string> => {
@@ -151,6 +123,6 @@ const setGamePath = async (gamePath: string): Promise<string> => {
         gamePath = path.join(gamePath, "win32");
     }
     let gameExePath = path.join(gamePath, "The Banner Saga Factions.exe");
-    currentConfig.setConfigField("gamePath", gameExePath);
+    configManager.setConfigField("gamePath", gameExePath);
     return gameExePath;
 };

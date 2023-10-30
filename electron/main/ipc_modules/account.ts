@@ -3,10 +3,6 @@ import path from "node:path";
 
 import { app, ipcMain, BrowserWindow, safeStorage } from "electron";
 
-import { currentConfig } from "./config";
-
-import { ipcErrorCodes } from "../enums";
-
 type redirectDetails = Electron.Event<Electron.WebContentsWillRedirectEventParams>;
 
 let host = "http://localhost:8082";
@@ -37,55 +33,37 @@ const setAccessToken = async (accessToken: string): Promise<void> => {
     return writeFile(path.join(app.getPath("userData"), "access_token"), encryptedToken);
 };
 
-const getCurrentUser = async (): Promise<ipcResponse> => {
+const getCurrentUser = async (): Promise</*User */ any | null> => {
     let accessToken: string | null = await getAccessToken();
 
     if (!accessToken) {
-        return {
-            data: null,
-            error: {
-                message: "No access token found",
-                errorCode: ipcErrorCodes.ENoAccessToken,
-            },
-        };
+        return null;
     }
 
     let accountData;
     try {
-        accountData = await fetch(`${host}/account/info`, {
+        const requestOptions: RequestInit = {
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
-        });
-    } catch (error) {
-        return {
-            data: null,
-            error: {
-                message: "Failed to fetch user data",
-                errorCode: ipcErrorCodes.EServerError,
-            },
         };
+
+        accountData = await fetch(`${host}/account/info`, requestOptions);
+
+        if (!accountData.ok) {
+            throw new Error(
+                `Failed to fetch user data: ${accountData.status} ${accountData.statusText}`
+            );
+        }
+    } catch (error) {
+        throw error;
     }
 
-    if (accountData.status === 200) {
-        return {
-            data: await accountData.json(),
-        };
-    } else {
-        // TODO: log error somewhere
-        return {
-            data: null,
-            error: {
-                message: await accountData.json(),
-                errorCode: ipcErrorCodes.EServerError,
-            },
-        };
-    }
+    return await accountData.json();
 };
 
-const createLoginWindow = (
-    redirectHandler: (details: redirectDetails) => Promise<void>
-) => {
+const createLoginWindow = (redirectHandler: (details: redirectDetails) => Promise<void>) => {
     loginWin = new BrowserWindow({
         title: "Discord Login",
         width: 650 * 0.75,
@@ -98,7 +76,7 @@ const createLoginWindow = (
     loginWin.webContents.on("will-redirect", redirectHandler);
 };
 
-const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<ipcResponse> => {
+const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<void> => {
     const handleLoginRedirect = async (details: redirectDetails) => {
         let loginRedirect = new URL(details.url);
         if (loginRedirect.protocol !== "bsf:") return;
@@ -107,24 +85,13 @@ const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<ipcRespo
         let accessToken = loginRedirect.searchParams.get("access_token");
 
         if (!accessToken) {
-            return event.sender.send("login-complete", {
-                data: null,
-                error: {
-                    message: "No access token found",
-                    errorCode: ipcErrorCodes.ENoAccessToken,
-                },
-            } as ipcResponse);
+            return event.sender.send("login-error");
         }
         await setAccessToken(accessToken);
-        let username = currentConfig.getConfigField("username");
 
-        event.sender.send("login-complete", {
-            data: username,
-        } as ipcResponse);
+        event.sender.send("login-complete");
     };
 
     createLoginWindow(handleLoginRedirect);
-    return {
-        data: null,
-    };
+    return;
 };
