@@ -12,13 +12,15 @@ export const LoginView = () => {
     const loginError = useLoginStore((s) => s.error);
 
     useEffect(() => {
-        window.accountsAPI.loginHandler((_evt: Electron.IpcRendererEvent, error?: Error) => {
-            if (error) {
-                useLoginStore.setState({ state: LoginStates.LoggedOut, error });
-            } else {
-                useLoginStore.setState({ state: LoginStates.LoggedIn });
+        window.accountsAPI.loginHandler(
+            (_evt: Electron.IpcRendererEvent, newUser: boolean, error?: Error) => {
+                if (error) {
+                    useLoginStore.setState({ state: LoginStates.LoggedOut, error });
+                } else {
+                    useLoginStore.setState({ state: LoginStates.LoggedIn });
+                }
             }
-        });
+        );
     }, []);
 
     useEffect(() => {

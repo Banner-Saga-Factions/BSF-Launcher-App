@@ -96,8 +96,9 @@ setTimeout(removeLoading, 4999);
 contextBridge.exposeInMainWorld("accountsAPI", {
     getCurrentUser: () => ipcRenderer.invoke("getCurrentUser"),
     startLogin: () => ipcRenderer.invoke("startLogin"),
-    loginHandler: (callback: (_evt: Electron.IpcRendererEvent, error?: Error) => void) =>
-        ipcRenderer.on("login-completed" || "login-error", callback),
+    loginHandler: (
+        callback: (_evt: Electron.IpcRendererEvent, newUser: boolean, error?: Error) => void
+    ) => ipcRenderer.on("login-complete" || "login-error", callback),
 });
 
 contextBridge.exposeInMainWorld("gameAPI", {

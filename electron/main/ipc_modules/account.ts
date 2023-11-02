@@ -83,13 +83,17 @@ const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<void> =>
 
         loginWin?.close();
         let accessToken = loginRedirect.searchParams.get("access_token");
+        let error = loginRedirect.searchParams.get("error");
+        let newUser = loginRedirect.searchParams.get("new_user");
 
         if (!accessToken) {
-            return event.sender.send("login-error");
+            let errorMsg = error ? error : "An unknown error occurred";
+            return event.sender.send("login-error", false, new Error(errorMsg));
         }
+
         await setAccessToken(accessToken);
 
-        event.sender.send("login-complete");
+        event.sender.send("login-complete", newUser === "true");
     };
 
     createLoginWindow(handleLoginRedirect);

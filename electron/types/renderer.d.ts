@@ -5,7 +5,9 @@ export interface IElectronAccountsAPI {
     updateUser: () => Promise<void>;
     startLogin: () => Promise<void>;
     updateUser: () => Promise<void>;
-    loginHandler: (callback: (_evt: Electron.IpcRendererEvent, error?: Error) => void) => void;
+    loginHandler: (
+        callback: (_evt: Electron.IpcRendererEvent, newUser: boolean, error?: Error) => void
+    ) => void;
 }
 
 export interface IElectronGameAPI {
