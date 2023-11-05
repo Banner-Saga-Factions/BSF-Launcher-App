@@ -20,4 +20,18 @@ export const mixins = {
         user-select: none;
         position: relative;
     `,
+
+    interactable: css`
+        transition: transform 0.3s;
+        &:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+    `,
+
+    engulf: css`
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+    `,
 };

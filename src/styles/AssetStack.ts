@@ -3,23 +3,26 @@ import { mixins } from "./mixins";
 
 const AssetContainer = styled.div`
     position: relative;
-
-    // center elements
     ${mixins.flexCenter};
 
     // apply any custom styling
     ${(props) => props.theme};
 
     > img {
-        // absolute allows layering
+        // absolute to allow layering
         position: absolute;
     }
+`;
 
-    transition: transform 0.3s;
+const InteractiveAssetContainer = styled(AssetContainer)`
+    ${mixins.interactable};
     &:hover {
-        transform: scale(1.02);
-        cursor: pointer;
         > .hover-asset {
+            opacity: 1;
+        }
+    }
+    &:active {
+        > .click-asset {
             opacity: 1;
         }
     }
@@ -39,4 +42,4 @@ const ClickAsset = styled(Asset)`
     transition: opacity 0.1s;
 `;
 
-export { AssetContainer, Asset, HoverAsset, ClickAsset };
+export { AssetContainer, InteractiveAssetContainer, Asset, HoverAsset, ClickAsset };

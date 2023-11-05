@@ -1,5 +1,6 @@
-import buttonBase from "@/assets/text_button/base.png";
-import buttonHighlight from "@/assets/text_button/highlight.png";
+import buttonBase from "@/assets/banner_button/base.png";
+import buttonHighlight from "@/assets/banner_button/highlight.png";
+import buttonClick from "@/assets/banner_button/shade.png";
 import { InteractiveAsset } from "@/components/AssetComponent";
 import { TextButtonProps } from "@/models/props";
 import { ButtonText } from "@/styles/StyledText";
@@ -7,20 +8,22 @@ import { mixins } from "@/styles/mixins";
 import { css } from "styled-components";
 
 const assetExtension = css`
-    margin: clamp(100px, 2vw, 300px) clamp(15%, 2vh, 300px);
     > div {
         ${mixins.flexCenter}
     }
     > .base-asset {
-        height: 100%;
+        height: 80%;
     }
 
     > .hover-asset {
-        height: 73%;
+        height: 78%;
+    }
+    > .click-asset {
+        height: 80%;
     }
 `;
 
-export const TextButton = (props: TextButtonProps) => {
+export const BannerButton = (props: TextButtonProps) => {
     const { text, className, textStyle, onClick } = props;
 
     return (
@@ -29,6 +32,7 @@ export const TextButton = (props: TextButtonProps) => {
             alt={`${text} button`}
             className={className}
             hoverSrc={buttonHighlight}
+            clickSrc={buttonClick}
             themeOverride={assetExtension}
             onClick={onClick}
         >

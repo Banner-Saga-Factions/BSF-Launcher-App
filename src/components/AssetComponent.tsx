@@ -1,9 +1,27 @@
-import { IInteractiveAssetProps } from "@/models/props";
-import { AssetContainer, Asset, HoverAsset, ClickAsset } from "@/styles/AssetStack";
-import { Fragment } from "react";
+import { AssetProps, InteractiveAssetProps } from "@/models/props";
+import {
+    InteractiveAssetContainer,
+    Asset,
+    HoverAsset,
+    ClickAsset,
+    AssetContainer,
+} from "@/styles/AssetStack";
+import { PropsWithChildren } from "react";
 
-export const InteractiveAsset = (props: IInteractiveAssetProps) => {
+export const AssetComponent = (props: PropsWithChildren<AssetProps>) => {
+    const { src, alt, themeOverride, className, children } = props;
+
+    return (
+        <AssetContainer theme={themeOverride} className={className}>
+            <Asset className="base-asset" src={src} alt={alt} />
+            <div className="asset-children">{children}</div>
+        </AssetContainer>
+    );
+};
+
+export const InteractiveAsset = (props: PropsWithChildren<InteractiveAssetProps>) => {
     const {
+        children,
         src,
         alt,
         themeOverride,
@@ -13,11 +31,10 @@ export const InteractiveAsset = (props: IInteractiveAssetProps) => {
         onMouseOver,
         onMouseOut,
         onClick,
-        inlineComponents,
     } = props;
 
     return (
-        <AssetContainer
+        <InteractiveAssetContainer
             theme={themeOverride}
             className={className}
             onMouseOver={onMouseOver}
@@ -25,17 +42,10 @@ export const InteractiveAsset = (props: IInteractiveAssetProps) => {
             onClick={onClick}
         >
             <Asset className="base-asset" src={src} alt={alt} />
-            {hoverSrc && (
-                <HoverAsset className="hover-asset" src={hoverSrc} alt={`${alt} hover`} />
-            )}
-            {clickSrc && (
-                <ClickAsset className="click-asset" src={clickSrc} alt={`${alt} click`} />
-            )}
+            {clickSrc && <ClickAsset className="click-asset" src={clickSrc} alt={`${alt} click`} />}
+            {hoverSrc && <HoverAsset className="hover-asset" src={hoverSrc} alt={`${alt} hover`} />}
 
-            {/* Any other inline components */}
-            {inlineComponents?.map((component, i) => (
-                <Fragment key={`${className}-inline-${i}`}>{component}</Fragment>
-            ))}
-        </AssetContainer>
+            <div className="asset-children">{children}</div>
+        </InteractiveAssetContainer>
     );
 };
