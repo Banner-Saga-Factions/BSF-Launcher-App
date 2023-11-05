@@ -9,25 +9,21 @@ const App = (_: any) => {
     const loginState = useLoginStore((loginState) => loginState.state);
 
     useEffect(() => {
-        window.accountsAPI
-            .getCurrentUser()
-            .then((res) => {
-                if (res) {
-                    useLoginStore.setState({ state: LoginStates.LoggedIn });
-                    useUserStore.setState({ user: res });
-                } else {
-                    useLoginStore.setState({ state: LoginStates.LoggedOut });
-                }
-            })
-            .catch((err) => {
-                // pass error to LoginView
-                useLoginStore.setState({ state: LoginStates.LoggedOut, error: err });
-            });
+        window.accountsApi.getCurrentUser().then((res) => {
+            if (res.error) {
+                useLoginStore.setState({ state: LoginStates.LoggedOut, error: res.error });
+            } else if (res.data) {
+                useLoginStore.setState({ state: LoginStates.LoggedIn });
+                useUserStore.setState({ user: res });
+            } else {
+                useLoginStore.setState({ state: LoginStates.LoggedOut });
+            }
+        });
     }, []);
 
     return (
         <div className="App">
-            {loginState !== LoginStates.LoggedIn ? <LoginView/> : <MainMenu />}
+            {loginState !== LoginStates.LoggedIn ? <LoginView /> : <MainMenu />}
         </div>
     );
 };

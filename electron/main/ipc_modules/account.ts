@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { app, ipcMain, BrowserWindow, safeStorage } from "electron";
+import { configManager } from "../../util/config";
 
 type redirectDetails = Electron.Event<Electron.WebContentsWillRedirectEventParams>;
 
@@ -14,7 +15,8 @@ let loginWin: BrowserWindow | null = null;
 
 export const accountIpcInit = () => {
     ipcMain.handle("getCurrentUser", getCurrentUser);
-    ipcMain.handle("handleLogin", handleLogin);
+    ipcMain.handle("startLogin", handleLogin);
+    ipcMain.handle("updateUser", updateUser);
 };
 
 export const getAccessToken = async (): Promise<string | null> => {
@@ -57,7 +59,7 @@ const getCurrentUser = async (): Promise</*User */ any | null> => {
             );
         }
     } catch (error) {
-        throw error;
+        throw (error as Error).cause;
     }
 
     return await accountData.json();
@@ -84,18 +86,49 @@ const handleLogin = async (event: Electron.IpcMainInvokeEvent): Promise<void> =>
         loginWin?.close();
         let accessToken = loginRedirect.searchParams.get("access_token");
         let error = loginRedirect.searchParams.get("error");
-        let newUser = loginRedirect.searchParams.get("new_user");
+
+        let isNewUser = loginRedirect.searchParams.get("new_user");
+        let username = loginRedirect.searchParams.get("username");
 
         if (!accessToken) {
             let errorMsg = error ? error : "An unknown error occurred";
-            return event.sender.send("login-error", false, new Error(errorMsg));
+            return event.sender.send("login-error", "", false, new Error(errorMsg));
         }
 
         await setAccessToken(accessToken);
 
-        event.sender.send("login-complete", newUser === "true");
+        event.sender.send("login-complete", username, isNewUser === "true");
     };
 
     createLoginWindow(handleLoginRedirect);
+    return;
+};
+
+const updateUser = async (
+    event: Electron.IpcMainInvokeEvent,
+    { username }: { username: string }
+) => {
+    let accessToken = await getAccessToken();
+    if (!accessToken) {
+        return;
+    }
+
+    let requestOptions: RequestInit = {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+            username: username,
+        }),
+    };
+
+    let response = await fetch(`${host}/account/update`, requestOptions);
+
+    if (!response.ok) {
+        throw new Error(`Failed to update user data: ${response.status} ${response.statusText}`);
+    }
+
+    configManager.setConfigField("username", username);
     return;
 };

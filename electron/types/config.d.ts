@@ -2,8 +2,9 @@ export declare global {
     interface Config {
         gamePath?: string;
         gameVersion?: string;
+        username?: string;
         richPresence?: boolean;
-    };
+    }
 
     interface IConfigManager {
         get config(): Config;

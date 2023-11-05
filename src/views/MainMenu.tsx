@@ -21,8 +21,8 @@ export const MainMenu = () => {
             }
         });
 
-        window.gameAPI.checkGameIsInstalled().then((res: boolean) => {
-            let newState: InstallStates = res
+        window.gameAPI.checkGameIsInstalled().then((res) => {
+            let newState: InstallStates = res.data
                 ? InstallStates.Installed
                 : InstallStates.NotInstalled;
 
@@ -34,17 +34,16 @@ export const MainMenu = () => {
 
     const tryInstall = () => {
         useInstalledStore.setState({ state: InstallStates.InstallPending });
-        window.gameAPI
-            .installGame()
-            .then(() => {
+        window.gameAPI.installGame().then((res) => {
+            if (!res.error) {
                 useInstalledStore.setState({ state: InstallStates.Installed });
-            })
-            .catch((err) => {
+            } else {
                 useInstalledStore.setState({
                     state: InstallStates.NotInstalled,
-                    error: err,
+                    error: res.error,
                 });
-            });
+            }
+        });
     };
 
     const mainButton = () => {
@@ -72,7 +71,7 @@ export const MainMenu = () => {
         <div>
             <h2>You made it! :D</h2>
             {mainButton()}
-            { error && <div> 🔴 Error Installing Game: {error.message}</div> }
+            {error && <div> 🔴 Error Installing Game: {error.message}</div>}
         </div>
     );
 };

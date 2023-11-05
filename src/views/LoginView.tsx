@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLoginStore } from "@/store/config";
 import { LoginStates } from "@/models/states";
 import { TextButton } from "@/components/TextButton";
@@ -8,28 +8,35 @@ import loadingRing from "@/assets/loading-ring.png";
 import logo from "@/assets/logo.png";
 
 export const LoginView = () => {
+    const [isNewUser, setIsNewUser]: [{ state: boolean; username: string }, any] = useState({
+        state: false,
+        username: "",
+    });
     const loginState = useLoginStore((s) => s.state);
     const loginError = useLoginStore((s) => s.error);
 
     useEffect(() => {
-        window.accountsAPI.loginHandler(
-            (_evt: Electron.IpcRendererEvent, newUser: boolean, error?: Error) => {
+        window.accountsApi.loginHandler(
+            (
+                _evt: Electron.IpcRendererEvent,
+                username: string,
+                newUser: boolean,
+                error?: Error
+            ) => {
                 if (error) {
                     useLoginStore.setState({ state: LoginStates.LoggedOut, error });
-                } else {
+                } else if (!newUser) {
                     useLoginStore.setState({ state: LoginStates.LoggedIn });
+                } else {
+                    setIsNewUser({ state: true, username });
                 }
             }
         );
     }, []);
 
-    useEffect(() => {
-        // TODO: notify user of error
-    }, [loginError]);
-
     const startLogin = () => {
         useLoginStore.setState({ state: LoginStates.LoginPending });
-        window.accountsAPI.startLogin();
+        window.accountsApi.startLogin();
     };
 
     const isLoading = (): string => {
@@ -60,8 +67,20 @@ export const LoginView = () => {
                     fontSize: `clamp(72px, 6vw, 130px)`,
                 }}
             />
-            /* placeholder */
-            {loginError ? <p className="error-message"> 🔴 {loginError.message}</p> : null}
+            {loginError && (
+                <h1
+                    style={{
+                        position: "absolute",
+                        bottom: "1%",
+                        left: "1%",
+                        fontFamily: "sans-serif",
+                        fontWeight: "lighter",
+                    }}
+                    className="error-message"
+                >
+                    🔴 {loginError.name}: {loginError.message}
+                </h1>
+            )}
         </div>
     );
 };

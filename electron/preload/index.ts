@@ -93,17 +93,35 @@ window.onmessage = (ev) => {
 
 setTimeout(removeLoading, 4999);
 
-contextBridge.exposeInMainWorld("accountsAPI", {
-    getCurrentUser: () => ipcRenderer.invoke("getCurrentUser"),
-    startLogin: () => ipcRenderer.invoke("startLogin"),
-    loginHandler: (
-        callback: (_evt: Electron.IpcRendererEvent, newUser: boolean, error?: Error) => void
-    ) => ipcRenderer.on("login-complete" || "login-error", callback),
-});
+const InvokeMainWithResponse = async <T>(channel: string, ...args: any[]) => {
+    try {
+        return { data: (await ipcRenderer.invoke(channel, ...args)) as T } as ipcResponse<T>;
+    } catch (err) {
+        return { error: err as Error } as ipcResponse<T>;
+    }
+};
 
-contextBridge.exposeInMainWorld("gameAPI", {
-    launchGame: () => ipcRenderer.invoke("launchGame"),
-    checkGameIsInstalled: () => ipcRenderer.invoke("checkGameIsInstalled"),
-    installGame: () => ipcRenderer.invoke("installGame"),
+const AccountsApi: IElectronAccountsApi = {
+    getCurrentUser: () => InvokeMainWithResponse<any>("getCurrentUser"),
+    startLogin: () => InvokeMainWithResponse<void>("startLogin"),
+    updateUser: ({ username }: { username: string }) =>
+        InvokeMainWithResponse<void>("updateUser", { username }),
+    loginHandler: (
+        callback: (
+            _evt: Electron.IpcRendererEvent,
+            username: string,
+            newUser: boolean,
+            error?: Error
+        ) => void
+    ) => ipcRenderer.on("login-complete" || "login-error", callback),
+};
+
+const gameApi: IElectronGameAPI = {
+    launchGame: () => InvokeMainWithResponse<void>("launchGame"),
+    checkGameIsInstalled: () => InvokeMainWithResponse<boolean>("checkGameIsInstalled"),
+    installGame: () => InvokeMainWithResponse<void>("installGame"),
     installHandler: (callback: any) => ipcRenderer.on("install-progress", callback),
-});
+};
+
+contextBridge.exposeInMainWorld("accountsApi", AccountsApi);
+contextBridge.exposeInMainWorld("gameAPI", gameApi);
