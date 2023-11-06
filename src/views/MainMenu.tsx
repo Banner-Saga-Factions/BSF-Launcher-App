@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useInstalledStore } from "@/store/config";
 import { InstallStates } from "@/models/states";
 
-type InstallProgress = "downloading" | "verifying" | "installing" | number;
 
 export const MainMenu = () => {
     const { state, error } = useInstalledStore();

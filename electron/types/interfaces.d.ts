@@ -4,6 +4,14 @@ declare global {
         accountsApi: IElectronAccountsApi;
         gameAPI: IElectronGameAPI;
     }
+    
+    enum InstallState {
+        Downloading = "downloading",
+        Verifying = "verifying",
+        Installing = "installing",
+    }
+
+    type InstallProgress = InstallState | number;
 
     interface ipcResponse<T> {
         data?: T;

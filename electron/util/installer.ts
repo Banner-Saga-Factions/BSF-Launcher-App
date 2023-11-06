@@ -15,14 +15,6 @@ import { configManager } from "./config";
 const host =
     process.env.NODE_ENV === "production" ? "https://bsf.pieloaf.com" : "http://localhost:8082";
 
-const enum InstallState {
-    Downloading = "downloading",
-    Verifying = "verifying",
-    Installing = "installing",
-}
-
-export type InstallProgress = InstallState | number;
-
 export class GameInstaller {
     private requestOptions: RequestInit;
     private installDir: string;
