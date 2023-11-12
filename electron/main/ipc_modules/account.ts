@@ -10,7 +10,7 @@ let host = "http://localhost:8082";
 if (process.env.NODE_ENV === "production") {
     host = "https://bsf.pieloaf.com";
 }
-const DISCORD_LOGIN_URL = `${host}/auth/discord-login`;
+const DISCORD_LOGIN_URL = `${host}/login/discord`;
 let loginWin: BrowserWindow | null = null;
 
 export const accountIpcInit = () => {
@@ -51,7 +51,7 @@ const getCurrentUser = async (): Promise</*User */ any | null> => {
             },
         };
 
-        accountData = await fetch(`${host}/account/info`, requestOptions);
+        accountData = await fetch(`${host}/services/account/info`, requestOptions);
 
         if (!accountData.ok) {
             throw new Error(
@@ -117,13 +117,14 @@ const updateUser = async (
         method: "POST",
         headers: {
             Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username: username,
+            username,
         }),
     };
 
-    let response = await fetch(`${host}/account/update`, requestOptions);
+    let response = await fetch(`${host}/services/account/update`, requestOptions);
 
     if (!response.ok) {
         throw new Error(`Failed to update user data: ${response.status} ${response.statusText}`);

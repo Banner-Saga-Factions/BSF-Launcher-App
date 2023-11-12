@@ -18,7 +18,6 @@ export interface InteractiveAssetProps {
 }
 
 export interface TextButtonProps {
-    text: string;
     className?: string;
     textStyle?: React.CSSProperties;
     onClick?: () => void;

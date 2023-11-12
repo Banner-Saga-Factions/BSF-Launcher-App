@@ -5,7 +5,7 @@ export const TitleText = styled.h1`
     font-size: 64px;
     font-weight: 900;
     -webkit-text-stroke: 2px #ffdbb1;
-    -webkit-font-smoothing: antialiased;
+    // -webkit-font-smoothing: antialiased;
     color: #010101;
 `;
 

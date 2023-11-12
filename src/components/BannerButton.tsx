@@ -6,6 +6,7 @@ import { TextButtonProps } from "@/models/props";
 import { ButtonText } from "@/styles/StyledText";
 import { mixins } from "@/styles/mixins";
 import { css } from "styled-components";
+import { PropsWithChildren } from "react";
 
 const assetExtension = css`
     > div {
@@ -23,20 +24,20 @@ const assetExtension = css`
     }
 `;
 
-export const BannerButton = (props: TextButtonProps) => {
-    const { text, className, textStyle, onClick } = props;
+export const BannerButton = (props: PropsWithChildren<TextButtonProps>) => {
+    const { className, textStyle, onClick, children } = props;
 
     return (
         <InteractiveAsset
             src={buttonBase}
-            alt={`${text} button`}
+            alt={`button`}
             className={className}
             hoverSrc={buttonHighlight}
             clickSrc={buttonClick}
             themeOverride={assetExtension}
             onClick={onClick}
         >
-            <ButtonText style={textStyle}>{text}</ButtonText>
+            <ButtonText style={textStyle}>{children}</ButtonText>
         </InteractiveAsset>
     );
 };

@@ -69,7 +69,6 @@ export const LoginView = () => {
                     />
                 </ModalContent>
                 <BannerButton
-                    text="Submit"
                     onClick={async () => {
                         let res = await window.accountsApi.updateUser({
                             username: isNewUser.username,
@@ -91,7 +90,9 @@ export const LoginView = () => {
                         textShadow: "0px 0px 15px black",
                         bottom: "20px",
                     }}
-                />
+                >
+                    Submit
+                </BannerButton>
             </Modal>
         );
     };
@@ -113,13 +114,14 @@ export const LoginView = () => {
             </div>
             <img className="logo" src={logo} alt="Banner Saga Factions Logo" />
             <TextButton
-                text="Login"
                 className="login-button"
                 onClick={startLogin}
                 textStyle={{
-                    fontSize: `clamp(72px, 6vw, 130px)`,
+                    fontSize: `clamp(72px, 6vw, 100px)`,
                 }}
-            />
+            >
+                Login
+            </TextButton>
             {loginError && (
                 <h1
                     style={{

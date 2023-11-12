@@ -28,11 +28,12 @@ enum launchArgs {
 
 export const gameManagerIpcInit = () => {
     ipcMain.handle("checkGameIsInstalled", checkGameIsInstalled);
-    ipcMain.handle("installGame", handledInstall);
+    ipcMain.handle("installGame", handleInstall);
     ipcMain.handle("launchGame", handleLaunchGame);
 };
 
 const checkGameIsInstalled = async (): Promise<boolean> => {
+    // return false;
     if (!configManager.getConfigField("gamePath")) {
         // try get path automatically from steam
         let gamePath = await getGamePath(FACTIONS_APP_ID);
@@ -45,7 +46,7 @@ const checkGameIsInstalled = async (): Promise<boolean> => {
     return true;
 };
 
-const handledInstall = async (event: Electron.IpcMainInvokeEvent): Promise<void> => {
+const handleInstall = async (event: Electron.IpcMainInvokeEvent): Promise<void> => {
     let dialogResult = await dialog.showOpenDialog({
         properties: ["openDirectory"],
         title: "Select Banner Saga Factions Install Location",

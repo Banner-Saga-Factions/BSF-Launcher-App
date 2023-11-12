@@ -5,9 +5,10 @@ import { TextButtonProps } from "@/models/props";
 import { ButtonText } from "@/styles/StyledText";
 import { mixins } from "@/styles/mixins";
 import { css } from "styled-components";
+import { PropsWithChildren } from "react";
 
-const assetExtension = css`
-    margin: clamp(100px, 2vw, 300px) clamp(15%, 2vh, 300px);
+const buttonStyle = css`
+    margin: clamp(44px, 2vw, 300px) clamp(15%, 2vh, 300px);
     > div {
         ${mixins.flexCenter}
     }
@@ -20,19 +21,19 @@ const assetExtension = css`
     }
 `;
 
-export const TextButton = (props: TextButtonProps) => {
-    const { text, className, textStyle, onClick } = props;
+export const TextButton = (props: PropsWithChildren<TextButtonProps>) => {
+    const { className, textStyle, onClick, children } = props;
 
     return (
         <InteractiveAsset
             src={buttonBase}
-            alt={`${text} button`}
+            alt={`button`}
             className={className}
             hoverSrc={buttonHighlight}
-            themeOverride={assetExtension}
+            themeOverride={buttonStyle}
             onClick={onClick}
         >
-            <ButtonText style={textStyle}>{text}</ButtonText>
+            <ButtonText style={textStyle}>{children}</ButtonText>
         </InteractiveAsset>
     );
 };

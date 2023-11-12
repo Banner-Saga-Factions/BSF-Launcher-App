@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { createWriteStream, createReadStream } from "node:fs";
+import { createWriteStream, createReadStream, readFileSync } from "node:fs";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
@@ -9,6 +9,14 @@ import { app } from "electron";
 import { XmlElement, parseXml } from "@rgrove/parse-xml";
 import { x } from "tar";
 const tar = { x };
+
+// enum InstallState {
+//     Downloading = "downloading",
+//     Verifying = "verifying",
+//     Installing = "installing",
+// }
+
+// type InstallProgress = InstallState | number;
 
 import { configManager } from "./config";
 
@@ -36,7 +44,6 @@ export class GameInstaller {
     };
 
     private async downloadGame(outputFile: string) {
-        // Source: https://stackoverflow.com/a/74722818
         try {
             const response = await fetch(`${host}/download`, this.requestOptions);
 
@@ -54,26 +61,21 @@ export class GameInstaller {
                 bytesRead += chunk.length;
                 this.sendProgress(Math.round((bytesRead / totalLength) * 100));
             });
-            
-            readStream.pipe(createWriteStream(outputFile));
+
+            return new Promise((resolve, reject) => {
+                readStream
+                    .pipe(createWriteStream(outputFile))
+                    .on("finish", () => resolve(null))
+                    .on("error", (error) => reject(error));
+            });
         } catch (error) {
             throw error;
         }
     }
 
-    private generateChecksum = async (filePath: string): Promise<string> => {
-        // Source: https://stackoverflow.com/a/18658613
-        let fileStream = createReadStream(filePath);
-        let hash = createHash("md5");
-
-        hash.setEncoding("hex");
-
-        fileStream.pipe(hash);
-        return new Promise((resolve, reject) => {
-            hash.on("finish", () => {
-                resolve(hash.read());
-            });
-        });
+    private generateChecksum = (filePath: string): string => {
+        let fileData = readFileSync(filePath, { encoding: null });
+        return createHash("md5").update(fileData).digest("hex");
     };
 
     private verifyChecksum = async (filePath: string): Promise<boolean> => {
@@ -84,7 +86,7 @@ export class GameInstaller {
             );
         }
         let checksum = await checksumResponse.text();
-        let localChecksum = await this.generateChecksum(filePath);
+        let localChecksum = this.generateChecksum(filePath);
 
         return localChecksum === checksum;
     };
@@ -121,6 +123,7 @@ export class GameInstaller {
             this.sendProgress(InstallState.Downloading);
             await this.downloadGame(downloadPath);
 
+            // wait until readstream is done
             this.sendProgress(InstallState.Verifying);
             if (!(await this.verifyChecksum(downloadPath))) {
                 throw new Error("Failed to verify checksum");
@@ -128,10 +131,10 @@ export class GameInstaller {
 
             this.sendProgress(InstallState.Installing);
 
-            tar.x({
+            await tar.x({
                 file: downloadPath,
                 cwd: this.installDir,
-            },);
+            });
             let gamePath = path.join(this.installDir, "the banner saga factions");
             // Get game version
             let version = await this.getGameVersion(gamePath);

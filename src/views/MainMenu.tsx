@@ -1,7 +1,33 @@
 import { useEffect, useState } from "react";
 import { useInstalledStore } from "@/store/config";
 import { InstallStates } from "@/models/states";
+import logo from "@/assets/logo.png";
+import background from "@/assets/main/background.png";
+import styled from "styled-components";
+import { TextButton } from "@/components/TextButton";
 
+const MenuItems = styled.ul`
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    font-size: 48px;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.beige};
+    text-shadow: 0px 0px 15px ${(props) => props.theme.colors.blue};
+    padding: 0;
+    box-shadow: #00000042 0px 0 6px 15px;
+    background-color: #00000042;
+    border-radius: 29px;
+    > li {
+        transition: transform 0.2s;
+        &:hover {
+            cursor: pointer;
+            transform: scale(1.1);
+        }
+    }
+`;
 
 export const MainMenu = () => {
     const { state, error } = useInstalledStore();
@@ -9,13 +35,13 @@ export const MainMenu = () => {
 
     useEffect(() => {
         window.gameAPI.installHandler((_evt: Electron.IpcRendererEvent, res: InstallProgress) => {
-            if (res === "downloading") {
+            if (res == "downloading") {
                 useInstalledStore.setState({ state: InstallStates.Downloading });
             } else if (res === "verifying") {
                 useInstalledStore.setState({ state: InstallStates.Verifying });
             } else if (res === "installing") {
                 useInstalledStore.setState({ state: InstallStates.Installing });
-            } else if (typeof res === "number" && state === InstallStates.Downloading) {
+            } else if (Number(res)) {
                 setDownloadProgress(res);
             }
         });
@@ -47,19 +73,33 @@ export const MainMenu = () => {
 
     const mainButton = () => {
         if (state === InstallStates.Installed) {
-            return <button onClick={window.gameAPI.launchGame}>Play Game</button>;
-        } else if (state === InstallStates.NotInstalled || state === InstallStates.InstallPending) {
             return (
-                <button disabled={state === InstallStates.InstallPending} onClick={tryInstall}>
-                    Install/Find Game
-                </button>
+                <TextButton
+                    textStyle={{
+                        fontSize: "48px",
+                        width: "100%",
+                        padding: "48px 28px 51px 42px",
+                    }}
+                    onClick={window.gameAPI.launchGame}
+                >
+                    Play Game
+                </TextButton>
             );
+        } else if (state === InstallStates.NotInstalled || state === InstallStates.InstallPending) {
+            return <TextButton onClick={tryInstall}>Install/Find Game</TextButton>;
         } else {
             return (
                 <div>
-                    <span> {state.replace(/([a-z])([A-Z])/g, "$1 $2")} </span>
+                    <span style={{ fontWeight: "bold", fontSize: "48px" }}>
+                        {" "}
+                        {state.replace(/([a-z])([A-Z])/g, "$1 $2")}{" "}
+                    </span>
                     {state === InstallStates.Downloading && (
-                        <progress value={downloadProgress} max={100} />
+                        <progress
+                            style={{ width: "350px", height: "30px" }}
+                            value={downloadProgress}
+                            max={100}
+                        />
                     )}
                 </div>
             );
@@ -67,10 +107,34 @@ export const MainMenu = () => {
     };
 
     return (
-        <div>
-            <h2>You made it! :D</h2>
-            {mainButton()}
-            {error && <div> 🔴 Error Installing Game: {error.message}</div>}
+        <div className="main-menu view">
+            <div className="background-container">
+                <img
+                    className="background"
+                    src={background}
+                    alt="Banner Saga Factions Main Menu Background"
+                />
+            </div>
+            <div className="main-stack">
+                <img className="logo" src={logo} alt="Banner Saga Factions Logo" />
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        width: "100%",
+                    }}
+                >
+                    {mainButton()}
+                    <MenuItems>
+                        <li> Account </li>
+                        <li> Settings </li>
+                        <li> Help </li>
+                        <li> About </li>
+                    </MenuItems>
+                </div>
+            </div>
+            {error && <span> 🔴 Error Installing Game: {error.message}</span>}
         </div>
     );
 };

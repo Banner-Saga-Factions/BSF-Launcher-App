@@ -101,7 +101,7 @@ const InvokeMainWithResponse = async <T>(channel: string, ...args: any[]) => {
     }
 };
 
-const AccountsApi: IElectronAccountsApi = {
+const accountsApi: IElectronAccountsApi = {
     getCurrentUser: () => InvokeMainWithResponse<any>("getCurrentUser"),
     startLogin: () => InvokeMainWithResponse<void>("startLogin"),
     updateUser: ({ username }: { username: string }) =>
@@ -123,5 +123,5 @@ const gameApi: IElectronGameAPI = {
     installHandler: (callback: any) => ipcRenderer.on("install-progress", callback),
 };
 
-contextBridge.exposeInMainWorld("accountsApi", AccountsApi);
+contextBridge.exposeInMainWorld("accountsApi", accountsApi);
 contextBridge.exposeInMainWorld("gameAPI", gameApi);
