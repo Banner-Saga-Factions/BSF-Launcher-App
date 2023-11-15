@@ -1,7 +1,7 @@
 import { styled } from "styled-components";
-import { mixins } from "./mixins";
+import { mixins } from "@/styles";
 
-const AssetContainer = styled.div`
+export const AssetContainer = styled.div`
     position: relative;
     ${mixins.flexCenter};
 
@@ -14,7 +14,7 @@ const AssetContainer = styled.div`
     }
 `;
 
-const InteractiveAssetContainer = styled(AssetContainer)`
+export const InteractiveAssetContainer = styled(AssetContainer)`
     ${mixins.interactable};
     &:hover {
         > .hover-asset {
@@ -28,18 +28,16 @@ const InteractiveAssetContainer = styled(AssetContainer)`
     }
 `;
 
-const Asset = styled.img`
+export const Asset = styled.img`
     object-fit: cover;
 `;
 
-const HoverAsset = styled(Asset)`
+export const HoverAsset = styled(Asset)`
     opacity: 0;
     transition: opacity 0.3s;
 `;
 
-const ClickAsset = styled(Asset)`
+export const ClickAsset = styled(Asset)`
     opacity: 0;
     transition: opacity 0.1s;
 `;
-
-export { AssetContainer, InteractiveAssetContainer, Asset, HoverAsset, ClickAsset };

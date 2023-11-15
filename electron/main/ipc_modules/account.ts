@@ -14,6 +14,7 @@ const DISCORD_LOGIN_URL = `${host}/login/discord`;
 let loginWin: BrowserWindow | null = null;
 
 export const accountIpcInit = () => {
+    ipcMain.handle("isLoggedIn", checkLogin);
     ipcMain.handle("getCurrentUser", getCurrentUser);
     ipcMain.handle("startLogin", handleLogin);
     ipcMain.handle("updateUser", updateUser);
@@ -35,12 +36,13 @@ const setAccessToken = async (accessToken: string): Promise<void> => {
     return writeFile(path.join(app.getPath("userData"), "access_token"), encryptedToken);
 };
 
+const checkLogin = async (): Promise<boolean> => {
+    let accessToken = await getAccessToken();
+    return !!accessToken;
+};
+
 const getCurrentUser = async (): Promise</*User */ any | null> => {
     let accessToken: string | null = await getAccessToken();
-
-    if (!accessToken) {
-        return null;
-    }
 
     let accountData;
     try {

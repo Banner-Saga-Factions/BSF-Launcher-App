@@ -7,7 +7,7 @@ export const mixins = {
         align-items: center;
     `,
     loadingSpin: css`
-        @keyframes loading {
+        @keyframes loading-spin {
             0% {
                 rotate: 0deg;
             }
@@ -16,15 +16,10 @@ export const mixins = {
             }
         }
     `,
-    buttonText: css`
-        user-select: none;
-        position: relative;
-    `,
 
     interactable: css`
         transition: transform 0.3s;
         &:hover {
-            transform: scale(1.05);
             cursor: pointer;
         }
     `,
@@ -33,5 +28,16 @@ export const mixins = {
         position: absolute;
         width: 100vw;
         height: 100vh;
+    `,
+
+    titleText: css`
+        font-size: ${(props) => props.theme.fontSizes.title};
+        font-weight: 900;
+    `,
+
+    buttonText: css`
+        font-size: ${(props) => props.theme.fontSizes.button};
+        user-select: none;
+        position: relative;
     `,
 };

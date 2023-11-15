@@ -16,9 +16,3 @@ export interface InteractiveAssetProps {
     onMouseOut?: () => void;
     onClick?: () => void;
 }
-
-export interface TextButtonProps {
-    className?: string;
-    textStyle?: React.CSSProperties;
-    onClick?: () => void;
-}

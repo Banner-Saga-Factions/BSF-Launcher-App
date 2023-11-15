@@ -4,30 +4,8 @@ import { InstallStates } from "@/models/states";
 import logo from "@/assets/logo.png";
 import background from "@/assets/main/background.png";
 import styled from "styled-components";
-import { TextButton } from "@/components/TextButton";
-
-const MenuItems = styled.ul`
-    list-style: none;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    width: 100%;
-    font-size: 48px;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.beige};
-    text-shadow: 0px 0px 15px ${(props) => props.theme.colors.blue};
-    padding: 0;
-    box-shadow: #00000042 0px 0 6px 15px;
-    background-color: #00000042;
-    border-radius: 29px;
-    > li {
-        transition: transform 0.2s;
-        &:hover {
-            cursor: pointer;
-            transform: scale(1.1);
-        }
-    }
-`;
+import { TextButton } from "@/components/Buttons/TextButton";
+import { BackgroundContainer } from "@/components/BackgroundContainer";
 
 export const MainMenu = () => {
     const { state, error } = useInstalledStore();
@@ -108,13 +86,9 @@ export const MainMenu = () => {
 
     return (
         <div className="main-menu view">
-            <div className="background-container">
-                <img
-                    className="background"
-                    src={background}
-                    alt="Banner Saga Factions Main Menu Background"
-                />
-            </div>
+            <BackgroundContainer>
+                <Background src={background} alt="Banner Saga Factions Main Menu Background" />
+            </BackgroundContainer>
             <div className="main-stack">
                 <img className="logo" src={logo} alt="Banner Saga Factions Logo" />
                 <div
@@ -138,3 +112,31 @@ export const MainMenu = () => {
         </div>
     );
 };
+
+const MenuItems = styled.ul`
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+    font-size: 48px;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.beige};
+    text-shadow: 0px 0px 15px ${(props) => props.theme.colors.blue};
+    padding: 0;
+    box-shadow: #00000042 0px 0 6px 15px;
+    background-color: #00000042;
+    border-radius: 29px;
+    > li {
+        transition: transform 0.2s;
+        &:hover {
+            cursor: pointer;
+            transform: scale(1.1);
+        }
+    }
+`;
+
+const Background = styled.img`
+    height: 100vh;
+    filter: brightness(0.9);
+`;

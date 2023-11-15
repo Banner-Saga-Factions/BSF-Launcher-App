@@ -2,11 +2,11 @@ import buttonBase from "@/assets/banner_button/base.png";
 import buttonHighlight from "@/assets/banner_button/highlight.png";
 import buttonClick from "@/assets/banner_button/shade.png";
 import { InteractiveAsset } from "@/components/AssetComponent";
-import { TextButtonProps } from "@/models/props";
-import { ButtonText } from "@/styles/StyledText";
 import { mixins } from "@/styles/mixins";
 import { css } from "styled-components";
 import { PropsWithChildren } from "react";
+
+import { styles, TextButtonProps } from "./";
 
 const assetExtension = css`
     > div {
@@ -37,7 +37,7 @@ export const BannerButton = (props: PropsWithChildren<TextButtonProps>) => {
             themeOverride={assetExtension}
             onClick={onClick}
         >
-            <ButtonText style={textStyle}>{children}</ButtonText>
+            <styles.ButtonText style={textStyle}>{children}</styles.ButtonText>
         </InteractiveAsset>
     );
 };

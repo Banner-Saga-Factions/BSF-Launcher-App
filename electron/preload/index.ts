@@ -102,6 +102,7 @@ const InvokeMainWithResponse = async <T>(channel: string, ...args: any[]) => {
 };
 
 const accountsApi: IElectronAccountsApi = {
+    isLoggedIn: () => InvokeMainWithResponse<boolean>("isLoggedIn"),
     getCurrentUser: () => InvokeMainWithResponse<any>("getCurrentUser"),
     startLogin: () => InvokeMainWithResponse<void>("startLogin"),
     updateUser: ({ username }: { username: string }) =>

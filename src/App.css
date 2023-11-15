@@ -5,23 +5,6 @@
   width: clamp(655px, 35%, 1300px)
 }
 
-
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.background-container {
-  position: absolute;
-  overflow: hidden;
-  z-index: -1;
-}
-
 .background-container span {
   position: fixed;
   bottom: 0;
@@ -37,11 +20,6 @@
   right: 0;
   width: 125%;
   filter: saturate(.7) hue-rotate(30deg) brightness(1.5) contrast(.9);
-}
-
-.main-menu .background {
- height: 100vh;
- filter: brightness(.9);
 }
 
 /* TODO: convert to styled component */
@@ -61,23 +39,6 @@ img.loading-ring.is-loading {
 
 .background-container span.is-loading {
   display: none;
-}
-
-button {
-  transition: transform .1s cubic-bezier(0.215, 0.610, 0.355, 1);
-    padding: 20px;
-    font-family: 'Vinque';
-    font-size: 32px;
-}
-button:hover  {
-transform: scale(1.06);
-}
-button:hover:disabled {
-  transform: none
-}
-button[disabled]{
-  cursor: default;
-  filter: grayscale(.3) blur(1px);
 }
 
 .login-page {

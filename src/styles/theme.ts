@@ -10,7 +10,7 @@ export const theme = {
         lightGreen: `#91ee7c`,
         darkGreen: `#033b08`,
         beige: `#ffdbb1`,
-        black: `#2d3148`,
+        black: `#010101`,
     },
 
     fonts: {
@@ -18,6 +18,9 @@ export const theme = {
     },
 
     fontSizes: {
-        base: `16px`,
+        title: `64px`,
+        subtitle: `48px`,
+        button: `36px`,
+        text: `32px`,
     },
 };

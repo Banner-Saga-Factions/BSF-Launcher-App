@@ -19,6 +19,7 @@ declare global {
     }
 
     interface IElectronAccountsApi {
+        isLoggedIn: () => Promise<ipcResponse<boolean>>;
         getCurrentUser: () => Promise<ipcResponse<any>>;
         startLogin: () => Promise<ipcResponse<void>>;
         // TODO: define user type
