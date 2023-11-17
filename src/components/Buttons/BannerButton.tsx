@@ -9,6 +9,10 @@ import { PropsWithChildren } from "react";
 import { styles, TextButtonProps } from "./";
 
 const assetExtension = css`
+    fontSize: "64px",
+                    color: theme.colors.beige,
+                    textShadow: "0px 0px 15px black",
+                    bottom: "20px",
     > div {
         ${mixins.flexCenter}
     }
@@ -37,7 +41,7 @@ export const BannerButton = (props: PropsWithChildren<TextButtonProps>) => {
             themeOverride={assetExtension}
             onClick={onClick}
         >
-            <styles.ButtonText style={textStyle}>{children}</styles.ButtonText>
+            <styles.BannerButtonText style={textStyle }>{children}</styles.BannerButtonText>
         </InteractiveAsset>
     );
 };

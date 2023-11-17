@@ -15,14 +15,6 @@ type LoginState = StateTemplate<LoginStates>;
 type InstallState = StateTemplate<InstallStates>;
 type UpdateState = StateTemplate<UpdateStates>;
 
-interface NewUserState {
-    username: string;
-    isNewUser: boolean;
-    setIsNewUser: (isNewUser: boolean) => void;
-    setUsername: (username: string) => void;
-    setState: (isNewUser: boolean, username: string) => void;
-}
-
 interface UserState {
     user: User | null;
     setState: (user: User | null) => void;
@@ -42,20 +34,6 @@ export const useInstalledStore = create<InstallState>((set) => ({
     error: undefined,
     setState: (newState, newError?) => {
         set({ state: newState, error: newError });
-    },
-}));
-
-export const useNewUserStore = create<NewUserState>((set) => ({
-    username: "",
-    isNewUser: false,
-    setIsNewUser: (isNewUser) => {
-        set({ isNewUser });
-    },
-    setUsername: (username) => {
-        set({ username });
-    },
-    setState: (isNewUser, username) => {
-        set({ isNewUser, username });
     },
 }));
 

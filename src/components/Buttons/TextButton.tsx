@@ -34,7 +34,7 @@ export const TextButton = (props: PropsWithChildren<TextButtonProps>) => {
             themeOverride={buttonStyle}
             onClick={onClick}
         >
-            <styles.ButtonText style={textStyle}>{children}</styles.ButtonText>
+            <styles.TextButtonText style={textStyle}>{children}</styles.TextButtonText>
         </InteractiveAsset>
     );
 };

@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState} from "react";
 
-import { useLoginStore, useNewUserStore } from "@/store/config";
+import { useLoginStore } from "@/store/config";
 import { LoginStates } from "@/models/states";
 
 import { NewUserPrompt } from "@/views/NewUser";
@@ -13,7 +13,6 @@ import logo from "@/assets/logo.png";
 import styled from "styled-components";
 
 export const Login = () => {
-    const isNewUser = useNewUserStore((s) => s.isNewUser);
     const loginState = useLoginStore((s) => s.state);
     const loginError = useLoginStore((s) => s.error);
 
@@ -24,7 +23,7 @@ export const Login = () => {
             } else if (!newUser) {
                 useLoginStore.setState({ state: LoginStates.LoggedIn });
             } else {
-                useNewUserStore.setState({ isNewUser: true, username });
+                useLoginStore.setState({ state: LoginStates.FirstLogin });
             }
         });
     }, []);
@@ -61,7 +60,7 @@ export const Login = () => {
                 </ErrorMessage>
             )}
 
-            {isNewUser && NewUserPrompt()}
+            {loginState === LoginStates.FirstLogin && NewUserPrompt()}
         </div>
     );
 };

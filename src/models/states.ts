@@ -2,6 +2,7 @@ export enum LoginStates {
     CheckingLogin,
     LoggedOut,
     LoginPending,
+    FirstLogin,
     LoggedIn,
 }
 

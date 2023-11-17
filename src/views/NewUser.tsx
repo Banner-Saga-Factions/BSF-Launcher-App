@@ -1,15 +1,32 @@
 import { theme } from "@/styles/theme";
+import { useState } from "react";
 import { Modal, styles as modalStyles } from "@/components/Modal";
 import { BannerButton } from "@/components/Buttons";
-import { useNewUserStore, useLoginStore } from "@/store/config";
+import { useLoginStore, useUserStore } from "@/store/config";
 import { LoginStates } from "@/models/states";
 
 export const NewUserPrompt = () => {
-    const [username, setIsNewUser, setUsername] = useNewUserStore((s) => [
-        s.username,
-        s.setIsNewUser,
-        s.setUsername,
-    ]);
+    const [username, setUsername] = useState("");
+    const currentUser = useUserStore((s) => s.user);
+
+    // prevent whitespace, control characters, line breaks and paragraph separators
+    // allow basic and extended latin-a (supported blocks by Vinque font)
+    const userNamePattern = "^(?![sp{Cc}p{Zl}p{Zp}]).*[p{Basic_Latin}p{Latin_Extended-A}].*$";
+
+    const submitUsername = async () => {
+        let res = await window.accountsApi.updateUser({
+            username: username,
+        });
+        if (!res.error) {
+            useLoginStore.setState({ state: LoginStates.LoggedIn });
+        } else {
+            console.error("Error updating user:", res.error);
+            useLoginStore.setState({
+                state: LoginStates.FirstLogin,
+                error: res.error,
+            });
+        }
+    };
 
     return (
         <Modal className="new-user-modal">
@@ -26,42 +43,15 @@ export const NewUserPrompt = () => {
                         borderRadius: "10px",
                         width: "60%",
                     }}
-                    type="text"
+                    required
+                    type={"text"}
+                    pattern={userNamePattern}
+                    minLength={3}
+                    maxLength={20}
                     defaultValue={username}
                 />
             </modalStyles.ModalContent>
-            <BannerButton
-                onClick={async () => {
-                    if (!username.match(/^[a-zA-Z0-9_]+$/) || username.length < 3) {
-                        useLoginStore.setState({
-                            state: LoginStates.LoggedOut,
-                            error: new Error("Invalid username"),
-                        });
-                        return;
-                    }
-                    let res = await window.accountsApi.updateUser({
-                        username: username,
-                    });
-                    if (!res.error) {
-                        setIsNewUser(false);
-                        useLoginStore.setState({ state: LoginStates.LoggedIn });
-                    } else {
-                        console.error("Error updating user:", res.error);
-                        useLoginStore.setState({
-                            state: LoginStates.LoggedOut,
-                            error: res.error,
-                        });
-                    }
-                }}
-                textStyle={{
-                    fontSize: "64px",
-                    color: theme.colors.beige,
-                    textShadow: "0px 0px 15px black",
-                    bottom: "20px",
-                }}
-            >
-                Submit
-            </BannerButton>
+            <BannerButton onClick={submitUsername}>Submit</BannerButton>
         </Modal>
     );
 };

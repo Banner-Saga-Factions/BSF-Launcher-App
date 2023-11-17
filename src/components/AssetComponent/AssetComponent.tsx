@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 
-import { AssetProps, InteractiveAssetProps } from "./AssetComponent.types";
-import { styles } from "./";
+import { AssetProps, InteractiveAssetProps } from ".";
+import { styles } from ".";
 
 export const AssetComponent = (props: PropsWithChildren<AssetProps>) => {
     const { src, alt, themeOverride, className, children } = props;
